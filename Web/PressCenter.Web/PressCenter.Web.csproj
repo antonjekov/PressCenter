@@ -14,6 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Hangfire" Version="1.7.19" />
+    <PackageReference Include="Hangfire.Console" Version="1.4.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -33,6 +35,7 @@
     <ProjectReference Include="..\..\PressCenter.Common\PressCenter.Common.csproj" />
     <ProjectReference Include="..\..\Data\PressCenter.Data.Models\PressCenter.Data.Models.csproj" />
     <ProjectReference Include="..\..\Data\PressCenter.Data\PressCenter.Data.csproj" />
+    <ProjectReference Include="..\..\PressCenter.Services.CronJobs\PressCenter.Services.CronJobs.csproj" />
     <ProjectReference Include="..\..\Services\PressCenter.Services.Data\PressCenter.Services.Data.csproj" />
     <ProjectReference Include="..\..\Services\PressCenter.Services.Mapping\PressCenter.Services.Mapping.csproj" />
     <ProjectReference Include="..\..\Services\PressCenter.Services.Messaging\PressCenter.Services.Messaging.csproj" />

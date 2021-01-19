@@ -4,9 +4,8 @@ namespace PressCenter.Data.Models
     using System;
     using System.Collections.Generic;
 
-    using PressCenter.Data.Common.Models;
-
     using Microsoft.AspNetCore.Identity;
+    using PressCenter.Data.Common.Models;
 
     public class ApplicationUser : IdentityUser, IAuditInfo, IDeletableEntity
     {

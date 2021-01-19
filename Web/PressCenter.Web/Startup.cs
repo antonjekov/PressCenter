@@ -12,6 +12,7 @@
     using PressCenter.Services.Mapping;
     using PressCenter.Services.Messaging;
     using PressCenter.Web.ViewModels;
+    using PressCenter.Services.CronJobs;
 
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -21,6 +22,11 @@
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
+    using Hangfire;
+    using Hangfire.SqlServer;
+    using System;
+    using Hangfire.Console;
+    using System.Linq;
 
     public class Startup
     {
@@ -34,6 +40,23 @@
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHangfire(
+               config => config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                   .UseSimpleAssemblyNameTypeSerializer().UseRecommendedSerializerSettings().UseSqlServerStorage(
+                       this.configuration.GetConnectionString("DefaultConnection"),
+                       new SqlServerStorageOptions
+                       {
+                           CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                           SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                           QueuePollInterval = TimeSpan.Zero,
+                           UseRecommendedIsolationLevel = true,
+                           UsePageLocksOnDequeue = true,
+                           DisableGlobalLocks = true,
+                       }).UseConsole());
+
+            // Fires up the Hangfire Server, which is responsible for job processing.
+            services.AddHangfireServer();
+
             services.AddDbContext<ApplicationDbContext>(
                 options => options.UseSqlServer(this.configuration.GetConnectionString("DefaultConnection")));
 
@@ -65,10 +88,12 @@
             // Application services
             services.AddTransient<IEmailSender, NullMessageSender>();
             services.AddTransient<ISettingsService, SettingsService>();
+            services.AddTransient<INewsService, NewsService>();
+            services.AddTransient<ISourceService, SourceService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IRecurringJobManager recurringJobManager)
         {
             AutoMapperConfig.RegisterMappings(typeof(ErrorViewModel).GetTypeInfo().Assembly);
 
@@ -78,6 +103,7 @@
                 var dbContext = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 dbContext.Database.Migrate();
                 new ApplicationDbContextSeeder().SeedAsync(dbContext, serviceScope.ServiceProvider).GetAwaiter().GetResult();
+                this.SeedHangfireJobs(recurringJobManager, dbContext);
             }
 
             if (env.IsDevelopment())
@@ -100,6 +126,9 @@
             app.UseAuthentication();
             app.UseAuthorization();
 
+            // What this line does is, It allows us to access the hangfire dashboard in our ASP.NET Core Application. The dashboard will be available by going to /mydashboard URL
+            app.UseHangfireDashboard("/mydashboard");
+
             app.UseEndpoints(
                 endpoints =>
                     {
@@ -107,6 +136,18 @@
                         endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
                         endpoints.MapRazorPages();
                     });
+        }
+
+        private void SeedHangfireJobs(IRecurringJobManager recurringJobManager, ApplicationDbContext dbContext)
+        {
+            var sources = dbContext.Sources.Where(x => !x.IsDeleted).ToList();
+            foreach (var source in sources)
+            {
+                recurringJobManager.AddOrUpdate<GetNewPublicationsJob>(
+                    $"GetNewPublicationsJob{source.Id}_{source.ShortName}",
+                    x => x.StartAsync(source),
+                    "*/59 * * * *");
+            }
         }
     }
 }

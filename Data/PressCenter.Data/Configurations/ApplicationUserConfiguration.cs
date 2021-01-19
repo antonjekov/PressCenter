@@ -1,8 +1,8 @@
 ﻿namespace PressCenter.Data.Configurations
 {
-    using PressCenter.Data.Models;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
+    using PressCenter.Data.Models;
 
     public class ApplicationUserConfiguration : IEntityTypeConfiguration<ApplicationUser>
     {

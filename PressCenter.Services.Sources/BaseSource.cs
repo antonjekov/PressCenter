@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using AngleSharp;
 
 namespace PressCenter.Services.Sources
@@ -13,10 +14,11 @@ namespace PressCenter.Services.Sources
         }
 
         public abstract string EntryPointUrl { get; }
+        public abstract string BaseUrl { get; }
         public IBrowsingContext Context { get; }
 
-        public abstract IEnumerable<RemoteNews> GetLatestPublications();
+        public abstract Task<IEnumerable<RemoteNews>> GetNewPublications(List<string> existingNewsRemoteIds);
 
-        public abstract IEnumerable<RemoteNews> GetAllPublicationsAsync();
+        public abstract Task<IEnumerable<RemoteNews>> GetAllPublicationsAsync();
     }
 }

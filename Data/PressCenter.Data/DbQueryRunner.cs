@@ -3,9 +3,8 @@
     using System;
     using System.Threading.Tasks;
 
-    using PressCenter.Data.Common;
-
     using Microsoft.EntityFrameworkCore;
+    using PressCenter.Data.Common;
 
     public class DbQueryRunner : IDbQueryRunner
     {

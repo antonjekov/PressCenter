@@ -3,9 +3,8 @@ namespace PressCenter.Data.Models
 {
     using System;
 
-    using PressCenter.Data.Common.Models;
-
     using Microsoft.AspNetCore.Identity;
+    using PressCenter.Data.Common.Models;
 
     public class ApplicationRole : IdentityRole, IAuditInfo, IDeletableEntity
     {
