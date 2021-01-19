@@ -6,12 +6,13 @@ namespace PressCenter.Services.Sources
 {
     public class RemoteNews : INews
     {
-        public RemoteNews(string title, string content, DateTime date, string imageUrl)
+        public RemoteNews(string title, string content, DateTime date, string imageUrl, string remoteId)
         {
             this.Title = title;
             this.Content = content;
             this.PostDate = date;
             this.ImageUrl = imageUrl;
+            this.RemoteId = remoteId;
         }
 
         public string Title { get; set; }

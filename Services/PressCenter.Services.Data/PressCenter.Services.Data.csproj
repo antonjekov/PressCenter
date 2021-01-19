@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Data\PressCenter.Data.Common\PressCenter.Data.Common.csproj" />
     <ProjectReference Include="..\..\Data\PressCenter.Data.Models\PressCenter.Data.Models.csproj" />
+    <ProjectReference Include="..\..\PressCenter.Services.Sources\PressCenter.Services.Sources.csproj" />
     <ProjectReference Include="..\PressCenter.Services.Mapping\PressCenter.Services.Mapping.csproj" />
   </ItemGroup>
 
