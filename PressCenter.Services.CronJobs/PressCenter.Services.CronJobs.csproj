@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Hangfire.Core" Version="1.7.19" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Data\PressCenter.Data\PressCenter.Data.csproj" />
     <ProjectReference Include="..\PressCenter.Services.Sources\PressCenter.Services.Sources.csproj" />
     <ProjectReference Include="..\Services\PressCenter.Services.Data\PressCenter.Services.Data.csproj" />

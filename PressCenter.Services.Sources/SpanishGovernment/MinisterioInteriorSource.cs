@@ -9,16 +9,19 @@ namespace PressCenter.Services.Sources.SpanishGovernment
     using System.Threading.Tasks;
     using AngleSharp;
     using AngleSharp.Html.Dom;
-    using PressCenter.Services;
+    using PressCenter.Data.Models;
+
     public class MinisterioInteriorSource : BaseSource
     {
         private readonly string entryPointUrl;
         private readonly string baseUrl;
+        private readonly string defaultImageUrl;
 
-        public MinisterioInteriorSource(string entryPointUrl, string baseUrl)
+        public MinisterioInteriorSource(Source source)
         {
-            this.entryPointUrl = entryPointUrl;
-            this.baseUrl = baseUrl;
+            this.entryPointUrl = source.EntryPointUrl;
+            this.baseUrl = source.Url;
+            this.defaultImageUrl = source.DefaultImageUrl;
         }
         public override string EntryPointUrl => entryPointUrl;
 
@@ -49,6 +52,10 @@ namespace PressCenter.Services.Sources.SpanishGovernment
                     {
                         thumbnailURLFullAddress = this.BaseUrl + thumbnailURLAddress;
                     }
+                    else
+                    {
+                        thumbnailURLAddress = defaultImageUrl;
+                    }
 
                     var titleInfo = textHTML.QuerySelector("h4.tit");
                     var titleText = titleInfo.QuerySelector("p").TextContent;
@@ -65,12 +72,11 @@ namespace PressCenter.Services.Sources.SpanishGovernment
                         Title = titleText,
                         Content = shortText,
                         ImageUrl = thumbnailURLFullAddress,
-                        OriginalUrl = newsUrl
+                        OriginalUrl = newsUrl,
+                        Date = date,
                     };
                     result.Add(input);
-                    //var nextNews = AutoMapperConfig.MapperInstance.Map<News>(input);
-                    //await this.newsRepository.AddAsync(nextNews);
-                    //await this.newsRepository.SaveChangesAsync();
+
                 }
             }
             return result;
@@ -106,6 +112,10 @@ namespace PressCenter.Services.Sources.SpanishGovernment
                     {
                         thumbnailURLFullAddress = this.BaseUrl + thumbnailURLAddress;
                     }
+                    else
+                    {
+                        thumbnailURLAddress = defaultImageUrl;
+                    }
 
                     var titleInfo = textHTML.QuerySelector("h4.tit");
                     var titleText = titleInfo.QuerySelector("p").TextContent;
@@ -122,7 +132,8 @@ namespace PressCenter.Services.Sources.SpanishGovernment
                         Title = titleText,
                         Content = shortText,
                         ImageUrl = thumbnailURLFullAddress,
-                        OriginalUrl = newsUrl
+                        OriginalUrl = newsUrl,
+                        Date=date
                     };
                     if (existingNewsRemoteIds.Contains(remoteId))
                     {

@@ -10,7 +10,7 @@ namespace PressCenter.Services.Sources
         {
             this.Title = title;
             this.Content = content;
-            this.PostDate = date;
+            this.Date = date;
             this.ImageUrl = imageUrl;
             this.RemoteId = remoteId;
         }
@@ -23,7 +23,7 @@ namespace PressCenter.Services.Sources
 
         public string OriginalUrl { get; set; }
 
-        public DateTime PostDate { get; set; }
+        public DateTime Date { get; set; }
 
         public string RemoteId { get; set; }
     }

@@ -1,0 +1,9 @@
+﻿.news:hover {
+    color: white;
+    background-color: cornflowerblue;
+}
+
+.img-max {
+    max-width: 200px;
+    width: 100%;
+}

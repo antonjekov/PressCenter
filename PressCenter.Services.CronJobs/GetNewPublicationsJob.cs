@@ -1,12 +1,11 @@
-﻿using PressCenter.Data;
+﻿using Hangfire;
 using PressCenter.Data.Common.Repositories;
 using PressCenter.Data.Models;
 using PressCenter.Services.Data;
-using PressCenter.Services.Sources.SpanishGovernment;
+using PressCenter.Services.Sources;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PressCenter.Services.CronJobs
@@ -23,10 +22,22 @@ namespace PressCenter.Services.CronJobs
             this.resourceIds = newsRepository.AllAsNoTracking().Select(x => x.RemoteId).ToList();
             this.newsService = newsService;
         }
+
+        [AutomaticRetry(Attempts = 2)]
         public async Task StartAsync(Source source)
         {
-            //To DO with reflection create instance of nesesary source
-            var newPublications = await new MinisterioInteriorSource(source.EntryPointUrl, source.Url).GetNewPublications(this.resourceIds);
+            var type = typeof(BaseSource).Assembly.GetType(source.TypeName);
+            if (type == null)
+            {
+                throw new Exception($"Type \"{source.TypeName}\" not found!");
+            }
+
+            var instance = (BaseSource)Activator.CreateInstance(type, source);
+            if (instance == null)
+            {
+                throw new Exception($"Unable to create {typeof(BaseSource).Name} instance from \"{source.TypeName}\"!");
+            }
+            var newPublications = await instance.GetNewPublications(this.resourceIds);
             foreach (var publication in newPublications)
             {
                 await this.newsService.AddAsync(publication, source.Id);

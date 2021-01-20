@@ -1,10 +1,12 @@
 ﻿namespace PressCenter.Services.Data
 {
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
 
     using PressCenter.Data.Common.Repositories;
     using PressCenter.Data.Models;
+    using PressCenter.Services.Mapping;
     using PressCenter.Services.Sources;
 
     public class NewsService : INewsService
@@ -26,11 +28,33 @@
                 Content = remoteNews.Content,
                 ImageUrl = remoteNews.ImageUrl,
                 OriginalUrl = remoteNews.OriginalUrl,
+                Date = remoteNews.Date,
             };
             await this.newsRepository.AddAsync(news);
             await this.newsRepository.SaveChangesAsync();
         }
 
+        public IEnumerable<T> GetAll<T>()
+        {
+            return this.newsRepository.All()
+                .OrderByDescending(x => x.Date)
+                .ThenByDescending(x => x.CreatedOn)
+                .To<T>()
+                .ToList();
+        }
+
+        public IEnumerable<T> GetAll<T>(int page, int itemsPerPage)
+        {
+            return this.newsRepository.All()
+                .OrderByDescending(x => x.Date)
+                .ThenByDescending(x => x.CreatedOn)
+                .Skip((page - 1) * itemsPerPage)
+                .Take(itemsPerPage)
+                .To<T>()
+                .ToList();
+        }
+
         public int Count() => this.newsRepository.AllAsNoTracking().Count();
+
     }
 }

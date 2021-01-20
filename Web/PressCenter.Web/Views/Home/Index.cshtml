@@ -1,10 +1,39 @@
-﻿@using PressCenter.Common
+﻿@model IEnumerable<PressCenter.Web.ViewModels.News.NewsViewModel>
 @{
     this.ViewData["Title"] = "Home Page";
 }
+<div class="container">
+    <div class="row">
+        <div class=" col-md-8">
+            @foreach (var news in Model)
+            {
 
-<div class="text-center">
-    <h1 class="display-4">Welcome to @GlobalConstants.SystemName!</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+                <div class="media news">
+                    @if (@news.ImageUrl != null)
+                    {
+                        <img class="img-fluid img-max mr-3" src=@news.ImageUrl alt="Generic placeholder image">
+                    }
+                    <div class="media-body">
+                        <h5 class="mt-0">
+                            <a class="text-dark" asp-area="" asp-controller="" asp-action="">
+                                @news.Title
+                            </a>
+                        </h5>
+                        <div class="text-right">
+                            <a href=@news.OriginalUrl>@news.Source.ShortName</a>
+                            <span class="text-secondary">
+                                @news.ShortDate
+                            </span>
+                        </div>
+                        <p class="text-justify">
+                            @news.Content
+                        </p>
+                    </div>
+                </div>
+                <hr />
+            }
+        </div>
+    </div>
+    @*<partial name="_PaginationPartial" model="@Model" />*@
 </div>
-<a asp-action="Add" asp-controller="News" class="btn btn-success">AddNews</a>
+
