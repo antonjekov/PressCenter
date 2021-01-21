@@ -6,5 +6,7 @@ namespace PressCenter.Services.Data
     public interface ISourceService
     {
         IEnumerable<Source> GetAll();
+
+        IEnumerable<T> GetAll<T>();
     }
 }

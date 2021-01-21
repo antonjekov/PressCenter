@@ -23,6 +23,6 @@
 
         public DateTime Date { get; set; }
 
-        public string ShortDate => this.Date.ToString(new CultureInfo("es-ES").DateTimeFormat.LongDatePattern);
+        public string ShortDate => this.Date.ToString("D", new CultureInfo("es-ES"));
     }
 }

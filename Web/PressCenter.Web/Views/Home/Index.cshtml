@@ -1,11 +1,15 @@
-﻿@model IEnumerable<PressCenter.Web.ViewModels.News.NewsViewModel>
+﻿@model PressCenter.Web.ViewModels.News.NewsViewModelPagination
 @{
-    this.ViewData["Title"] = "Home Page";
+    this.ViewData["Title"] = "Noticias de España sin editar";
 }
 <div class="container">
     <div class="row">
+        <h4 class="text-secondary">Noticias sin editar @Model.ItemsCount (hoy: @Model.ItemsTodayCount)</h4>
+    </div>
+    <div class="row">
         <div class=" col-md-8">
-            @foreach (var news in Model)
+            <hr />
+            @foreach (var news in Model.News)
             {
 
                 <div class="media news">
@@ -22,7 +26,7 @@
                         <div class="text-right">
                             <a href=@news.OriginalUrl>@news.Source.ShortName</a>
                             <span class="text-secondary">
-                                @news.ShortDate
+                                <i class="far fa-clock"> @news.ShortDate</i>
                             </span>
                         </div>
                         <p class="text-justify">
@@ -34,6 +38,6 @@
             }
         </div>
     </div>
-    @*<partial name="_PaginationPartial" model="@Model" />*@
+    <partial name="_PaginationPartial" model="@Model" />
 </div>
 

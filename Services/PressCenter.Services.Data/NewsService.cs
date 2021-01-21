@@ -1,5 +1,6 @@
 ﻿namespace PressCenter.Services.Data
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -56,5 +57,12 @@
 
         public int Count() => this.newsRepository.AllAsNoTracking().Count();
 
+        public int NewsTodayCount()
+        {
+            var result = this.newsRepository.AllAsNoTracking()
+                .Where(x => x.Date.Date == DateTime.UtcNow.Date)
+                .Count();
+            return result;
+        }
     }
 }

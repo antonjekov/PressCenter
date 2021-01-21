@@ -14,5 +14,7 @@
         IEnumerable<T> GetAll<T>(int page, int itemsPerPage);
 
         int Count();
+
+        int NewsTodayCount();
     }
 }

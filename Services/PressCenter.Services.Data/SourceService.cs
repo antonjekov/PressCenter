@@ -1,5 +1,6 @@
 ﻿using PressCenter.Data.Common.Repositories;
 using PressCenter.Data.Models;
+using PressCenter.Services.Mapping;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,13 @@ namespace PressCenter.Services.Data
         {
             var sources = this.sourceRepository.All().ToList();
             return sources;
+        }
+
+        public IEnumerable<T> GetAll<T>()
+        {
+            return this.sourceRepository.AllAsNoTracking()
+                .To<T>()
+                .ToList();
         }
     }
 }

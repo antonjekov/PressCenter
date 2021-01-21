@@ -1,19 +1,12 @@
 ﻿namespace PressCenter.Web
 {
+    using System;
+    using System.Linq;
     using System.Reflection;
 
-    using PressCenter.Data;
-    using PressCenter.Data.Common;
-    using PressCenter.Data.Common.Repositories;
-    using PressCenter.Data.Models;
-    using PressCenter.Data.Repositories;
-    using PressCenter.Data.Seeding;
-    using PressCenter.Services.Data;
-    using PressCenter.Services.Mapping;
-    using PressCenter.Services.Messaging;
-    using PressCenter.Web.ViewModels;
-    using PressCenter.Services.CronJobs;
-
+    using Hangfire;
+    using Hangfire.Console;
+    using Hangfire.SqlServer;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
@@ -22,11 +15,17 @@
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
-    using Hangfire;
-    using Hangfire.SqlServer;
-    using System;
-    using Hangfire.Console;
-    using System.Linq;
+    using PressCenter.Data;
+    using PressCenter.Data.Common;
+    using PressCenter.Data.Common.Repositories;
+    using PressCenter.Data.Models;
+    using PressCenter.Data.Repositories;
+    using PressCenter.Data.Seeding;
+    using PressCenter.Services.CronJobs;
+    using PressCenter.Services.Data;
+    using PressCenter.Services.Mapping;
+    using PressCenter.Services.Messaging;
+    using PressCenter.Web.ViewModels;
 
     public class Startup
     {
@@ -42,7 +41,9 @@
         {
             services.AddHangfire(
                config => config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
-                   .UseSimpleAssemblyNameTypeSerializer().UseRecommendedSerializerSettings().UseSqlServerStorage(
+                   .UseSimpleAssemblyNameTypeSerializer()
+                   .UseRecommendedSerializerSettings()
+                   .UseSqlServerStorage(
                        this.configuration.GetConnectionString("DefaultConnection"),
                        new SqlServerStorageOptions
                        {
@@ -52,7 +53,8 @@
                            UseRecommendedIsolationLevel = true,
                            UsePageLocksOnDequeue = true,
                            DisableGlobalLocks = true,
-                       }).UseConsole());
+                       })
+                   .UseConsole());
 
             // Fires up the Hangfire Server, which is responsible for job processing.
             services.AddHangfireServer();

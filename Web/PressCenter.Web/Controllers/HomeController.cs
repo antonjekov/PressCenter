@@ -20,8 +20,18 @@
         public IActionResult Index(int id = 1)
         {
             int itemsPerPage = 10;
-            var allNews = this.newsService.GetAll<NewsViewModel>(1, itemsPerPage);
-            return this.View(allNews);
+            var allNewsThisPage = this.newsService.GetAll<NewsViewModel>(id, itemsPerPage);
+            var allNewsCount = this.newsService.Count();
+            var newsTodayCount = this.newsService.NewsTodayCount();
+            var allNewsPagination = new NewsViewModelPagination()
+            {
+                ItemsCount = allNewsCount,
+                ItemsPerPage = itemsPerPage,
+                PageNumber = id,
+                News = allNewsThisPage,
+                ItemsTodayCount = newsTodayCount,
+            };
+            return this.View(allNewsPagination);
         }
 
         public IActionResult Privacy()
