@@ -19,7 +19,7 @@ namespace PressCenter.Web.Controllers
 
         public IActionResult Index()
         {
-            var sources = this.sourceService.GetAll<SourceViewModel>();
+            var sources = this.sourceService.GetAll<SourceViewModel>().OrderBy(x => x.ShortName);
             return this.View(sources);
         }
     }

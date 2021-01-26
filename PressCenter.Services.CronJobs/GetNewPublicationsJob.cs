@@ -37,7 +37,7 @@ namespace PressCenter.Services.CronJobs
             {
                 throw new Exception($"Unable to create {typeof(BaseSource).Name} instance from \"{source.TypeName}\"!");
             }
-            var newPublications = await instance.GetNewPublications(this.resourceIds);
+            var newPublications = await instance.GetNewPublicationsAsync(this.resourceIds);
             foreach (var publication in newPublications)
             {
                 await this.newsService.AddAsync(publication, source.Id);

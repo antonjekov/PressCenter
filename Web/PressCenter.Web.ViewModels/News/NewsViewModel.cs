@@ -4,6 +4,7 @@
     using PressCenter.Data.Models;
     using System;
     using System.Globalization;
+    using System.Text.RegularExpressions;
 
     public class NewsViewModel : IMapFrom<News>
     {
@@ -24,5 +25,20 @@
         public DateTime Date { get; set; }
 
         public string ShortDate => this.Date.ToString("D", new CultureInfo("es-ES"));
+
+        public string ShortContent => this.GetShortContent(200);
+
+        private string GetShortContent(int maxLength)
+        {
+            if (this.Content.Length <= maxLength)
+            {
+                return this.Content;
+            }
+            else
+            {
+                var content = this.Content.Substring(0, maxLength) + "...";
+                return content;
+            }
+        }
     }
 }

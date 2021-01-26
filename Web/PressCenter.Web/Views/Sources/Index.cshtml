@@ -2,5 +2,5 @@
 
 @foreach (var source in Model)
 {
-    <h3>@source.ShortName</h3>
+    <h5><a href="@source.Url">@source.ShortName (@source.NewsCount noticias)</a></h5>
 }

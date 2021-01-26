@@ -1,5 +1,4 @@
 ﻿using AngleSharp;
-using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using PressCenter.Data.Models;
 using System;
@@ -11,26 +10,23 @@ using System.Threading.Tasks;
 
 namespace PressCenter.Services.Sources.Policia
 {
-    public class PoliciaNacional : BaseSource
+    public class GuardiaCivil : BaseSource
     {
-        public PoliciaNacional(Source source) : base(source)
+        public GuardiaCivil(Source source) : base(source)
         {
         }
-
         public override async Task<IEnumerable<RemoteNews>> GetAllPublicationsAsync()
         {
             var result = new List<RemoteNews>();
-            var year = DateTime.Now.Year;
-            // will get only last 10 pages with news from current year for more news change logic
             for (int i = 1; i < 10; i++)
             {
-                var url = String.Format(this.EntryPointUrl, year, i);
+                var url = String.Format(this.EntryPointUrl, i);
                 var document = await this.Context.OpenAsync(url);
                 if (document == null)
                 {
                     break;
                 }
-                var elements = document.QuerySelectorAll("div.contenido_nota_prensa");
+                var elements = document.QuerySelector("div.list-block").QuerySelectorAll("div.list-item");
                 foreach (var item in elements)
                 {
                     RemoteNews input =await GetInfoAsync(item);
@@ -43,8 +39,6 @@ namespace PressCenter.Services.Sources.Policia
         public override async Task<IEnumerable<RemoteNews>> GetNewPublicationsAsync(List<string> existingNewsRemoteIds)
         {
             var result = new List<RemoteNews>();
-            var year = DateTime.Now.Year;
-            // will get only last 10 pages with news from current year for more news change logic
             var remoteIdExist = false;
             for (int i = 1; i < 10; i++)
             {
@@ -52,13 +46,13 @@ namespace PressCenter.Services.Sources.Policia
                 {
                     break;
                 }
-                var url = String.Format(this.EntryPointUrl, year, i);
+                var url = String.Format(this.EntryPointUrl, i);
                 var document = await this.Context.OpenAsync(url);
                 if (document == null)
                 {
                     break;
                 }
-                var elements = document.QuerySelectorAll("div.contenido_nota_prensa");
+                var elements = document.QuerySelector("div.list-block").QuerySelectorAll("div.list-item");
                 foreach (var item in elements)
                 {
                     RemoteNews input =await GetInfoAsync(item);
@@ -72,25 +66,25 @@ namespace PressCenter.Services.Sources.Policia
             }
             return result;
         }
-
-        protected override DateTime GetDate(IElement textHTML)
+        
+        protected override DateTime GetDate(AngleSharp.Dom.IElement textHTML)
         {
-            var dateInfo = textHTML.QuerySelector("div.fecha_nota_prensa").TextContent;
-            var date = DateTime.ParseExact(dateInfo.Substring(0, 10), "dd-MM-yyyy", CultureInfo.InvariantCulture);
+            var dateInfo = textHTML.QuerySelector("span.fecha-noticia").TextContent;
+            var date = DateTime.ParseExact(dateInfo, "dd/MM/yy", CultureInfo.InvariantCulture);
             return date;
         }
 
-        protected override string GetImageUrl(IElement textHTML)
+        protected override string GetImageUrl(AngleSharp.Dom.IElement textHTML)
         {
             var imageUrl = string.Empty;
             var imageUrlPath = textHTML
-               .QuerySelector("div.imagen_nota_prensa")?
+               .QuerySelector("div.image-left")?
                .QuerySelector("img")
                .GetAttribute("src");
 
             if (imageUrlPath != null)
             {
-                imageUrl = this.BaseUrl + "prensa" + imageUrlPath.Substring(2);
+                imageUrl = this.BaseUrl + imageUrlPath;
             }
             else
             {
@@ -99,35 +93,42 @@ namespace PressCenter.Services.Sources.Policia
             return imageUrl;
         }
 
-        protected override async Task<string> GetNewsContentAsync(IElement textHTML)
+        protected override string GetTitle(AngleSharp.Dom.IElement textHTML)
         {
-            //var newsContent = textHTML.QuerySelector("div.antetitulo_nota_prensa").TextContent;
-            //return newsContent;
-
-            var pageFullNews = await this.Context.OpenAsync(this.GetOriginalUrl(textHTML));
-            var newsContentParagraphs = pageFullNews.GetElementById("contenido_nota");
-            newsContentParagraphs.QuerySelector("span.antetitulo").Remove();
-            newsContentParagraphs.QuerySelector("span.titulo").Remove();
-            
-            return newsContentParagraphs.TextContent;
+            var titleInfo = textHTML.QuerySelector("div.titular-noticia");
+            var titleText = titleInfo.TextContent;
+            return titleText;
         }
 
-        protected override string GetOriginalUrl(IElement textHTML)
+        protected override string GetOriginalUrl(AngleSharp.Dom.IElement textHTML)
         {
-            var titleInfo = textHTML.QuerySelector("div.titular_nota_prensa");
+            var titleInfo = textHTML.QuerySelector("div.titular-noticia");
             var newsUrl = titleInfo.QuerySelectorAll("a").OfType<IHtmlAnchorElement>().FirstOrDefault().Href;
             return newsUrl;
         }
 
-        protected override string GetRemoteId(IElement textHTML)
+        protected override async Task<string> GetNewsContentAsync(AngleSharp.Dom.IElement textHTML)
         {
-            return this.GetTitle(textHTML);
+            // to get full text
+            var pageFullNews =await this.Context.OpenAsync(this.GetOriginalUrl(textHTML));
+            var newsContentParagraphs = pageFullNews.QuerySelector("div.text-noticia");
+            newsContentParagraphs.QuerySelector("p.titular-noticia").Remove();
+            var scripts = newsContentParagraphs.QuerySelectorAll("script");
+            foreach (var item in scripts)
+            {
+                item.Remove();
+            }
+
+            return newsContentParagraphs.TextContent;
         }
 
-        protected override string GetTitle(IElement textHTML)
+        protected override string GetRemoteId(AngleSharp.Dom.IElement textHTML)
         {
-            var titleText = textHTML.QuerySelector("div.titular_nota_prensa").TextContent;
-            return titleText;
-        }
+            var remoteId = this.GetOriginalUrl(textHTML)
+                .Split('/')
+                .LastOrDefault()?
+                .Split('.')?[0];
+            return remoteId;
+        }        
     }
 }

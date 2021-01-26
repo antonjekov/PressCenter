@@ -11,29 +11,31 @@ using System.Threading.Tasks;
 
 namespace PressCenter.Services.Sources.Policia
 {
-    public class PoliciaNacional : BaseSource
+    public class DGT : BaseSource
     {
-        public PoliciaNacional(Source source) : base(source)
+        public DGT(Source source) : base(source)
         {
         }
-
         public override async Task<IEnumerable<RemoteNews>> GetAllPublicationsAsync()
         {
             var result = new List<RemoteNews>();
             var year = DateTime.Now.Year;
-            // will get only last 10 pages with news from current year for more news change logic
             for (int i = 1; i < 10; i++)
             {
-                var url = String.Format(this.EntryPointUrl, year, i);
+                var url = String.Format(this.EntryPointUrl, year);
+                if (i > 1)
+                {
+                    url += $"index-paginacion-{i.ToString().PadLeft(3, '0')}.shtml";
+                }
                 var document = await this.Context.OpenAsync(url);
                 if (document == null)
                 {
                     break;
                 }
-                var elements = document.QuerySelectorAll("div.contenido_nota_prensa");
+                var elements = document.QuerySelector("section.stcols").QuerySelectorAll("article");
                 foreach (var item in elements)
                 {
-                    RemoteNews input =await GetInfoAsync(item);
+                    RemoteNews input = await GetInfoAsync(item);
                     result.Add(input);
                 }
             }
@@ -44,7 +46,6 @@ namespace PressCenter.Services.Sources.Policia
         {
             var result = new List<RemoteNews>();
             var year = DateTime.Now.Year;
-            // will get only last 10 pages with news from current year for more news change logic
             var remoteIdExist = false;
             for (int i = 1; i < 10; i++)
             {
@@ -52,13 +53,22 @@ namespace PressCenter.Services.Sources.Policia
                 {
                     break;
                 }
-                var url = String.Format(this.EntryPointUrl, year, i);
+                var url = String.Format(this.EntryPointUrl, year);
+                if (i > 1)
+                {
+                    url += $"index-paginacion-{i.ToString().PadLeft(3, '0')}.shtml";
+                }
                 var document = await this.Context.OpenAsync(url);
                 if (document == null)
                 {
                     break;
                 }
-                var elements = document.QuerySelectorAll("div.contenido_nota_prensa");
+                var sectionNews = document.QuerySelector("section.stcols");
+                if (sectionNews == null)
+                {
+                    break;
+                }
+                var elements = sectionNews.QuerySelectorAll("article");
                 foreach (var item in elements)
                 {
                     RemoteNews input =await GetInfoAsync(item);
@@ -75,8 +85,8 @@ namespace PressCenter.Services.Sources.Policia
 
         protected override DateTime GetDate(IElement textHTML)
         {
-            var dateInfo = textHTML.QuerySelector("div.fecha_nota_prensa").TextContent;
-            var date = DateTime.ParseExact(dateInfo.Substring(0, 10), "dd-MM-yyyy", CultureInfo.InvariantCulture);
+            var dateInfo = textHTML.QuerySelector("time").TextContent;
+            var date = DateTime.ParseExact(dateInfo, "dd/MM/yyyy", CultureInfo.InvariantCulture);
             return date;
         }
 
@@ -84,13 +94,13 @@ namespace PressCenter.Services.Sources.Policia
         {
             var imageUrl = string.Empty;
             var imageUrlPath = textHTML
-               .QuerySelector("div.imagen_nota_prensa")?
+               .QuerySelector("figure")?
                .QuerySelector("img")
                .GetAttribute("src");
 
             if (imageUrlPath != null)
             {
-                imageUrl = this.BaseUrl + "prensa" + imageUrlPath.Substring(2);
+                imageUrl = this.BaseUrl + imageUrlPath;
             }
             else
             {
@@ -101,21 +111,23 @@ namespace PressCenter.Services.Sources.Policia
 
         protected override async Task<string> GetNewsContentAsync(IElement textHTML)
         {
-            //var newsContent = textHTML.QuerySelector("div.antetitulo_nota_prensa").TextContent;
+            //var newsContent = textHTML.QuerySelector("p").TextContent;
             //return newsContent;
-
             var pageFullNews = await this.Context.OpenAsync(this.GetOriginalUrl(textHTML));
-            var newsContentParagraphs = pageFullNews.GetElementById("contenido_nota");
-            newsContentParagraphs.QuerySelector("span.antetitulo").Remove();
-            newsContentParagraphs.QuerySelector("span.titulo").Remove();
-            
-            return newsContentParagraphs.TextContent;
+            var newsContentParagraphs = pageFullNews.QuerySelector("section.notap").QuerySelectorAll("p");
+            newsContentParagraphs[0].Remove();
+            var sb = new StringBuilder();
+            foreach (var item in newsContentParagraphs)
+            {
+                sb.AppendLine(item.TextContent);
+            }
+            var content = sb.ToString();
+            return content;
         }
 
         protected override string GetOriginalUrl(IElement textHTML)
         {
-            var titleInfo = textHTML.QuerySelector("div.titular_nota_prensa");
-            var newsUrl = titleInfo.QuerySelectorAll("a").OfType<IHtmlAnchorElement>().FirstOrDefault().Href;
+            var newsUrl = textHTML.QuerySelectorAll("a").OfType<IHtmlAnchorElement>().FirstOrDefault().Href;
             return newsUrl;
         }
 
@@ -126,7 +138,7 @@ namespace PressCenter.Services.Sources.Policia
 
         protected override string GetTitle(IElement textHTML)
         {
-            var titleText = textHTML.QuerySelector("div.titular_nota_prensa").TextContent;
+            var titleText = textHTML.QuerySelector("h4").TextContent;
             return titleText;
         }
     }

@@ -1,0 +1,63 @@
+﻿@inject Microsoft.Extensions.Configuration.IConfiguration  Configuration
+@model PressCenter.Web.ViewModels.Contact.ContactFormViewModel
+@{
+    this.ViewData["Title"] = "Send message";
+}
+
+@if (this.TempData.ContainsKey("Message"))
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <strong>@this.TempData["Message"]!</strong>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+<form id="contactForm" asp-action="Index" asp-controller="Contact" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" class="form-control" value="@this.User.Identity.Name" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Title"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Content"></label>
+        <textarea asp-for="Content" class="form-control" rows="5"></textarea>
+        <span asp-validation-for="Content" class="text-danger"></span>
+    </div>
+    <p>
+        By clicking the Send message button, you confirm that you are agree with our <a asp-controller="Home" asp-action="Privacy">privacy policy</a>.
+    </p>
+    <input type="hidden" id="RecaptchaValue" name="RecaptchaValue" />
+
+    <button type="button" class="btn btn-primary" onclick="onClick()">Send message</button>
+</form>
+
+@section Scripts
+    {
+    <script src="https://www.google.com/recaptcha/api.js?render=@this.Configuration["GoogleReCaptcha:Key"]"></script>
+
+    @*Recapcha token is valid only 2 minutes for this is important we to rewrite it with this js function before submit the form*@
+    <script>
+            function onClick() {
+               grecaptcha.ready(function () {
+                    grecaptcha.execute('@this.Configuration["GoogleReCaptcha:Key"]', { action: 'contact_form' }).then(function (token) {
+                        document.getElementById("RecaptchaValue").value = token;
+                        document.getElementById('contactForm').submit();
+                    });
+                });
+            }
+    </script>
+}
+
