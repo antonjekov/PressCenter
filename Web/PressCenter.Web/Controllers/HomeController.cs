@@ -7,14 +7,17 @@
     using Microsoft.AspNetCore.Mvc;
     using PressCenter.Services.Data;
     using PressCenter.Web.ViewModels.News;
+    using PressCenter.Web.ViewModels.TopNews;
 
     public class HomeController : BaseController
     {
         private readonly INewsService newsService;
+        private readonly ITopNewsService topNewsService;
 
-        public HomeController(INewsService newsService)
+        public HomeController(INewsService newsService, ITopNewsService topNewsService)
         {
             this.newsService = newsService;
+            this.topNewsService = topNewsService;
         }
 
         public IActionResult Index(int id = 1)
@@ -23,6 +26,7 @@
             var allNewsThisPage = this.newsService.GetAll<NewsViewModel>(id, itemsPerPage);
             var allNewsCount = this.newsService.Count();
             var newsTodayCount = this.newsService.NewsTodayCount();
+            var topNews = this.topNewsService.GetAll<TopNewsViewModel>();
             var allNewsPagination = new NewsViewModelPagination()
             {
                 ItemsCount = allNewsCount,
@@ -30,6 +34,7 @@
                 PageNumber = id,
                 News = allNewsThisPage,
                 ItemsTodayCount = newsTodayCount,
+                TopNews = topNews,
             };
             return this.View(allNewsPagination);
         }

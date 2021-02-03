@@ -43,9 +43,14 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer>
         <div class="container">
-            &copy; @DateTime.Now.Year - @GlobalConstants.SystemName - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <div class="card-body bg-light p-3">
+                La información publicada en este sitio generalmente está disponible públicamente y es compartida por el autor original para su nueva publicación. Cada noticia en el sitio está vinculada al autor original de la publicación. NoticiasEnOriginal.com no es responsable del contenido de las noticias publicadas. Cuando utilice información del sitio, cite al autor original.
+                <div >
+                    &copy; @DateTime.Now.Year - @GlobalConstants.SystemName - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                </div>
+            </div>
         </div>
     </footer>
 

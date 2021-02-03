@@ -91,6 +91,7 @@
             services.AddTransient<IEmailSender, NullMessageSender>();
             services.AddTransient<ISettingsService, SettingsService>();
             services.AddTransient<INewsService, NewsService>();
+            services.AddTransient<ITopNewsService, TopNewsService>();
             services.AddTransient<ISourceService, SourceService>();
         }
 
@@ -135,6 +136,7 @@
                 endpoints =>
                     {
                         endpoints.MapControllerRoute("areaRoute", "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+                        endpoints.MapControllerRoute("news", "News/{id:int:min(1)}/{slug?}", new { controller = "News", action = "Details", });
                         endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
                         endpoints.MapRazorPages();
                     });
@@ -149,6 +151,15 @@
                     $"GetNewPublicationsJob{source.Id}_{source.ShortName}",
                     x => x.StartAsync(source),
                     "*/59 * * * *");
+            }
+
+            var topNewsSources = dbContext.TopNewsSources.Where(x => !x.IsDeleted).ToList();
+            foreach (var source in topNewsSources)
+            {
+                recurringJobManager.AddOrUpdate<GetNewTopNewsJob>(
+                    $"GetNewTopNewsJob{source.Id}_{source.Name}",
+                    x => x.StartAsync(source),
+                    "*/5 * * * *");
             }
         }
     }

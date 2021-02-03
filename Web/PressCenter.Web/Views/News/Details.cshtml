@@ -1,0 +1,24 @@
+﻿@model PressCenter.Web.ViewModels.News.NewsDetailsViewModel
+
+    <div class="container">
+        <div class="row">
+            <div class=" col-md-8">
+                <article>
+                    <h3>@Model.News.Title</h3>
+                    <img class="img-fluid img-max mb-2" src="@Model.News.ImageUrl" />
+                    <p class="text-center">
+                        <a href=@Model.News.OriginalUrl>@Model.News.Source.ShortName</a>
+                        <span class="text-secondary">
+                            <i class="far fa-clock"> @Model.News.ShortDate</i>
+                        </span>
+                    </p>
+                    @*white-space: pre-line make new lines from database source to be the same in html*@
+                    <p class="text-justify" style="white-space: pre-line">@Model.News.Content</p>
+                </article>
+            </div>
+            <div class="col-md-4">
+                <partial name="_TopNewsPartial" model="@Model.TopNews" />
+            </div>
+        </div>
+    </div>
+

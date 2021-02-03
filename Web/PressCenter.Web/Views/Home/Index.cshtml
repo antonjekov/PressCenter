@@ -12,7 +12,7 @@
             {
                 <div class="container news">
                     <h5 class="mt-0">
-                        <a class="text-dark" asp-area="" asp-controller="" asp-action="">
+                        <a class="text-dark" asp-area="" asp-controller="News" asp-action="Details" asp-route-id="@news.Id" asp-route-slug="@news.Slug">
                             @news.Title
                         </a>
                     </h5>
@@ -33,37 +33,13 @@
                             <i class="far fa-clock"> @news.ShortDate</i>
                         </span>
                     </p>
-                </div>
-
-                @*<div class="media news">
-                @if (@news.ImageUrl != null)
-                {
-                    <img class="img-fluid img-max mr-3" src=@news.ImageUrl alt="Generic placeholder image">
-                }
-                <div class="media-body">
-                    <h5 class="mt-0">
-                        <a class="text-dark" asp-area="" asp-controller="" asp-action="">
-                            @news.Title
-                        </a>
-                    </h5>
-                    <div class="text-right">
-                        <a href=@news.OriginalUrl>@news.Source.ShortName</a>
-                        <span class="text-secondary">
-                            <i class="far fa-clock"> @news.ShortDate</i>
-                        </span>
-                    </div>
-                    <p class="text-justify">
-                        @news.Content
-                    </p>
-                </div>
-            </div>*@
+                </div>                
                 <hr />
             }
             <partial name="_PaginationPartial" model="@Model" />
         </div>
         <div class="col-md-4">
-            <h4 class="text-secondary">Periódicos hoy</h4>
-            <hr />
+            <partial name="_TopNewsPartial" model="@Model.TopNews"/>
         </div>
     </div>    
 </div>

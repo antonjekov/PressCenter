@@ -1,0 +1,26 @@
+﻿<h4 class="text-secondary">Periódicos hoy</h4>
+<hr />
+@model IEnumerable<PressCenter.Web.ViewModels.TopNews.TopNewsViewModel>
+
+@foreach (var topNew in Model)
+{
+    <div class="row">
+        <div class="col-md-4">
+            <img class="img-fluid img-max mr-3" src=@topNew.ImageUrl alt="@topNew.Source.Name">
+        </div>
+        <div class="col-md-8">
+            <p>
+                <a class="text-dark" href="@topNew.OriginalUrl">
+                    @topNew.Title
+                </a>
+            </p>
+        </div>
+    </div>
+    <p class="text-right">
+        <a href=@topNew.OriginalUrl>@topNew.Source.Name</a>
+        <span class="text-secondary">
+            <i class="far fa-clock"> @topNew.ShortDate</i>
+        </span>
+    </p>
+    <hr />
+}
