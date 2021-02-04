@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PressCenter.Data;
 
 namespace PressCenter.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210202142403_TopNews")]
+    partial class TopNews
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -408,11 +410,16 @@ namespace PressCenter.Data.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("TopNewsSourceId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("IsDeleted");
 
                     b.HasIndex("SourceId");
+
+                    b.HasIndex("TopNewsSourceId");
 
                     b.ToTable("TopNews");
                 });
@@ -514,11 +521,15 @@ namespace PressCenter.Data.Migrations
 
             modelBuilder.Entity("PressCenter.Data.Models.TopNews", b =>
                 {
-                    b.HasOne("PressCenter.Data.Models.TopNewsSource", "Source")
-                        .WithMany("TopNews")
+                    b.HasOne("PressCenter.Data.Models.Source", "Source")
+                        .WithMany()
                         .HasForeignKey("SourceId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("PressCenter.Data.Models.TopNewsSource", null)
+                        .WithMany("TopNews")
+                        .HasForeignKey("TopNewsSourceId");
 
                     b.Navigation("Source");
                 });

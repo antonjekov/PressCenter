@@ -3,15 +3,17 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using AngleSharp;
+using AngleSharp.Js;
 using PressCenter.Data.Models;
 
 namespace PressCenter.Services.Sources
 {
-    public abstract class BaseSource
+    public abstract class BaseSource<T>
     {
         protected BaseSource (Source source)
         {
             this.Context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
+            this.ContextJs = BrowsingContext.New(Configuration.Default.WithJs());            
             this.BaseUrl = source.Url;
             this.EntryPointUrl = source.EntryPointUrl;
             this.DefaultImageUrl = source.DefaultImageUrl;
@@ -21,25 +23,26 @@ namespace PressCenter.Services.Sources
         protected string DefaultImageUrl { get; }
         protected string BaseUrl { get; }
         protected IBrowsingContext Context { get; }
+        public IBrowsingContext ContextJs { get; }
 
-        protected virtual async Task<RemoteNews> GetInfoAsync(AngleSharp.Dom.IElement textHTML)
+        protected virtual async Task<RemoteNews> GetInfoAsync(T textHTML)
         {
-            var date = GetDate(textHTML);
-            var imageUrl = GetImageUrl(textHTML);
-            var title = GetTitle(textHTML);
-            var originalUrl = GetOriginalUrl(textHTML);
+            var date =await GetDateAsync(textHTML);
+            var imageUrl =await GetImageUrlAsync(textHTML);
+            var title = await GetTitleAsync(textHTML);
+            var originalUrl =await GetOriginalUrlAsync(textHTML);
             var content =(await GetNewsContentAsync(textHTML)).Trim();
-            var remoteId = GetRemoteId(textHTML);
+            var remoteId =await GetRemoteIdAsync(textHTML);
             var news = new RemoteNews(title, content, date, imageUrl, remoteId, originalUrl);
             return news;
         }
 
-        protected abstract DateTime GetDate(AngleSharp.Dom.IElement textHTML);
-        protected abstract string GetImageUrl(AngleSharp.Dom.IElement textHTML);
-        protected abstract string GetTitle(AngleSharp.Dom.IElement textHTML);
-        protected abstract Task<string> GetNewsContentAsync(AngleSharp.Dom.IElement textHTML);
-        protected abstract string GetOriginalUrl(AngleSharp.Dom.IElement textHTML);
-        protected abstract string GetRemoteId(AngleSharp.Dom.IElement textHTML);
+        protected abstract Task<DateTime> GetDateAsync(T textHTML);
+        protected abstract Task<string> GetImageUrlAsync(T textHTML);
+        protected abstract Task<string> GetTitleAsync(T textHTML);
+        protected abstract Task<string> GetNewsContentAsync(T textHTML);
+        protected abstract Task<string> GetOriginalUrlAsync(T textHTML);
+        protected abstract Task<string> GetRemoteIdAsync(T textHTML);
         public abstract Task<IEnumerable<RemoteNews>> GetNewPublicationsAsync(List<string> existingNewsRemoteIds);
         public abstract Task<IEnumerable<RemoteNews>> GetAllPublicationsAsync();
     }

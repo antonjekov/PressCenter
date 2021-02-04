@@ -1,8 +1,10 @@
-﻿using Hangfire;
+﻿using AngleSharp.Dom;
+using Hangfire;
 using PressCenter.Data.Common.Repositories;
 using PressCenter.Data.Models;
 using PressCenter.Services.Data;
 using PressCenter.Services.Sources;
+using PuppeteerSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,22 +28,43 @@ namespace PressCenter.Services.CronJobs
         [AutomaticRetry(Attempts = 2)]
         public async Task StartAsync(Source source)
         {
-            var type = typeof(BaseSource).Assembly.GetType(source.TypeName);
+            var type = typeof(BaseSource<IElement>).Assembly.GetType(source.TypeName);
+            if (source.ShortName == "Policia Nacional")
+            {
+                type = typeof(BaseSource<ElementHandle>).Assembly.GetType(source.TypeName);
+            }
             if (type == null)
             {
                 throw new Exception($"Type \"{source.TypeName}\" not found!");
             }
 
-            var instance = (BaseSource)Activator.CreateInstance(type, source);
-            if (instance == null)
+            if (source.ShortName == "Policia Nacional")
             {
-                throw new Exception($"Unable to create {typeof(BaseSource).Name} instance from \"{source.TypeName}\"!");
+                var instance = (BaseSource<ElementHandle>)Activator.CreateInstance(type, source);
+                if (instance == null)
+                {
+                    throw new Exception($"Unable to create {typeof(BaseSource<ElementHandle>).Name} instance from \"{source.TypeName}\"!");
+                }
+                var newPublications = await instance.GetNewPublicationsAsync(this.resourceIds);
+                foreach (var publication in newPublications)
+                {
+                    await this.newsService.AddAsync(publication, source.Id);
+                }
             }
-            var newPublications = await instance.GetNewPublicationsAsync(this.resourceIds);
-            foreach (var publication in newPublications)
+            else
             {
-                await this.newsService.AddAsync(publication, source.Id);
-            }
+                var instance = (BaseSource<IElement>)Activator.CreateInstance(type, source);
+                if (instance == null)
+                {
+                    throw new Exception($"Unable to create {typeof(BaseSource<IElement>).Name} instance from \"{source.TypeName}\"!");
+                }
+                var newPublications = await instance.GetNewPublicationsAsync(this.resourceIds);
+                foreach (var publication in newPublications)
+                {
+                    await this.newsService.AddAsync(publication, source.Id);
+                }
+            }         
+            
         }
     }
 }

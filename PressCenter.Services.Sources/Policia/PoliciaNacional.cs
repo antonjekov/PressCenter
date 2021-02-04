@@ -2,6 +2,7 @@
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using PressCenter.Data.Models;
+using PuppeteerSharp;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace PressCenter.Services.Sources.Policia
 {
-    public class PoliciaNacional : BaseSource
+    public class PoliciaNacional : BaseSource<ElementHandle>
     {
         public PoliciaNacional(Source source) : base(source)
         {
@@ -20,114 +21,128 @@ namespace PressCenter.Services.Sources.Policia
         public override async Task<IEnumerable<RemoteNews>> GetAllPublicationsAsync()
         {
             var result = new List<RemoteNews>();
-            var year = DateTime.Now.Year;
-            // will get only last 10 pages with news from current year for more news change logic
-            for (int i = 1; i < 10; i++)
+            await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
+            var browser = await Puppeteer.LaunchAsync(new LaunchOptions
             {
-                var url = String.Format(this.EntryPointUrl, year, i);
-                var document = await this.Context.OpenAsync(url);
-                if (document == null)
-                {
-                    break;
-                }
-                var elements = document.QuerySelectorAll("div.contenido_nota_prensa");
-                foreach (var item in elements)
-                {
-                    RemoteNews input =await GetInfoAsync(item);
-                    result.Add(input);
-                }
+                Headless = true
+            });
+            var page = await browser.NewPageAsync();
+            var userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.0 Safari/537.36";
+            await page.SetUserAgentAsync(userAgent);
+            await page.GoToAsync(this.EntryPointUrl);
+            await page.ClickAsync("#aceptaCookies");
+            await page.WaitForNavigationAsync();
+            var noticeiro = await page.QuerySelectorAsync("#div_noticiero");
+            var noticias = await noticeiro.QuerySelectorAllAsync("li");
+            foreach (var item in noticias)
+            {
+                RemoteNews input = await GetInfoAsync(item);
+                result.Add(input);
             }
+            await browser.CloseAsync();
             return result;
         }
 
         public override async Task<IEnumerable<RemoteNews>> GetNewPublicationsAsync(List<string> existingNewsRemoteIds)
         {
             var result = new List<RemoteNews>();
-            var year = DateTime.Now.Year;
-            // will get only last 10 pages with news from current year for more news change logic
             var remoteIdExist = false;
-            for (int i = 1; i < 10; i++)
+            await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
+            var browser = await Puppeteer.LaunchAsync(new LaunchOptions
             {
-                if (remoteIdExist)
+                Headless = true
+            }) ;
+            var page = await browser.NewPageAsync();
+            var userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.0 Safari/537.36";
+            await page.SetUserAgentAsync(userAgent);
+            await page.GoToAsync(this.EntryPointUrl);
+            await page.ClickAsync("#aceptaCookies");
+            var noticeiro = await page.QuerySelectorAsync("#div_noticiero");
+            var noticias = await noticeiro.QuerySelectorAllAsync("li");
+            foreach (var item in noticias)
+            {
+                RemoteNews input = await GetInfoAsync(item);
+                if (existingNewsRemoteIds.Contains(input.RemoteId))
                 {
+                    remoteIdExist = true;
                     break;
                 }
-                var url = String.Format(this.EntryPointUrl, year, i);
-                var document = await this.Context.OpenAsync(url);
-                if (document == null)
-                {
-                    break;
-                }
-                var elements = document.QuerySelectorAll("div.contenido_nota_prensa");
-                foreach (var item in elements)
-                {
-                    RemoteNews input =await GetInfoAsync(item);
-                    if (existingNewsRemoteIds.Contains(input.RemoteId))
-                    {
-                        remoteIdExist = true;
-                        break;
-                    }
-                    result.Add(input);
-                }
+                result.Add(input);
             }
+            await browser.CloseAsync();
             return result;
         }
 
-        protected override DateTime GetDate(IElement textHTML)
+        protected override async Task<DateTime> GetDateAsync(ElementHandle textHTML)
         {
-            var dateInfo = textHTML.QuerySelector("div.fecha_nota_prensa").TextContent;
-            var date = DateTime.ParseExact(dateInfo.Substring(0, 10), "dd-MM-yyyy", CultureInfo.InvariantCulture);
-            return date;
+            var elements = await textHTML.QuerySelectorAllAsync("p");
+            var dataInfo = await elements[elements.Length - 1].GetPropertyAsync("innerText");
+            var dataString = await dataInfo.JsonValueAsync<string>();
+            var data = DateTime.ParseExact(dataString, "dd/MM/yy", CultureInfo.InvariantCulture);
+            return data;
         }
 
-        protected override string GetImageUrl(IElement textHTML)
+        protected override async Task<string> GetImageUrlAsync(ElementHandle textHTML)
         {
-            var imageUrl = string.Empty;
-            var imageUrlPath = textHTML
-               .QuerySelector("div.imagen_nota_prensa")?
-               .QuerySelector("img")
-               .GetAttribute("src");
-
-            if (imageUrlPath != null)
+            var img = await textHTML.QuerySelectorAsync("img");
+            string imgUrl = String.Empty;
+            if (img != null)
             {
-                imageUrl = this.BaseUrl + "prensa" + imageUrlPath.Substring(2);
+                var imgUrlInfo = await img.GetPropertyAsync("src");
+                imgUrl = await imgUrlInfo.JsonValueAsync<string>();
             }
             else
             {
-                imageUrl = this.DefaultImageUrl;
+                imgUrl = this.DefaultImageUrl;
             }
-            return imageUrl;
+            return imgUrl;
         }
 
-        protected override async Task<string> GetNewsContentAsync(IElement textHTML)
+        protected override async Task<string> GetNewsContentAsync(ElementHandle textHTML)
         {
-            //var newsContent = textHTML.QuerySelector("div.antetitulo_nota_prensa").TextContent;
-            //return newsContent;
-
-            var pageFullNews = await this.Context.OpenAsync(this.GetOriginalUrl(textHTML));
-            var newsContentParagraphs = pageFullNews.GetElementById("contenido_nota");
-            newsContentParagraphs.QuerySelector("span.antetitulo").Remove();
-            newsContentParagraphs.QuerySelector("span.titulo").Remove();
-            
-            return newsContentParagraphs.TextContent;
+            await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
+            var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+            {
+                Headless = false
+            });
+            var hrefString = await this.GetOriginalUrlAsync(textHTML);
+            var pageDetails = await browser.NewPageAsync();
+            await pageDetails.GoToAsync(hrefString);
+            var contentInfoDiv = await pageDetails.QuerySelectorAsync(".holdDetalle");
+            var contentInfoP = await contentInfoDiv.QuerySelectorAllAsync("p");
+            var sb = new StringBuilder();
+            for (int i = 0; i < contentInfoP.Length; i++)
+            {
+                var pInnerText = await contentInfoP[i].GetPropertyAsync("innerText");                
+                var pString = await pInnerText.JsonValueAsync<string>();
+                sb.AppendLine(pString);
+            }
+            await browser.CloseAsync();
+            return sb.ToString();
         }
 
-        protected override string GetOriginalUrl(IElement textHTML)
+        protected override async Task<string> GetOriginalUrlAsync(ElementHandle textHTML)
         {
-            var titleInfo = textHTML.QuerySelector("div.titular_nota_prensa");
-            var newsUrl = titleInfo.QuerySelectorAll("a").OfType<IHtmlAnchorElement>().FirstOrDefault().Href;
-            return newsUrl;
+            var elements = await textHTML.QuerySelectorAllAsync("p");
+            var hrefInfo = await elements[0].QuerySelectorAsync("a");
+            var href = await hrefInfo.GetPropertyAsync("href");
+            var hrefString = await href.JsonValueAsync<string>();
+            return hrefString;
         }
 
-        protected override string GetRemoteId(IElement textHTML)
+        protected override async Task<string> GetRemoteIdAsync(ElementHandle textHTML)
         {
-            return this.GetTitle(textHTML);
+            var hrefString = await this.GetOriginalUrlAsync(textHTML);
+            var originalId = hrefString.Substring(hrefString.Length - 4);
+            return originalId;
         }
 
-        protected override string GetTitle(IElement textHTML)
+        protected override async Task<string> GetTitleAsync(ElementHandle textHTML)
         {
-            var titleText = textHTML.QuerySelector("div.titular_nota_prensa").TextContent;
-            return titleText;
+            var elements = await textHTML.QuerySelectorAllAsync("p");
+            var titleInfo = await elements[0].GetPropertyAsync("innerText");
+            var title = await titleInfo.JsonValueAsync<string>();
+            return title;
         }
     }
 }

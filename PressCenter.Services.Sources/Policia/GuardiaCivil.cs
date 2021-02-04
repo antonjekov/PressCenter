@@ -1,4 +1,5 @@
 ﻿using AngleSharp;
+using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using PressCenter.Data.Models;
 using System;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace PressCenter.Services.Sources.Policia
 {
-    public class GuardiaCivil : BaseSource
+    public class GuardiaCivil : BaseSource<IElement>
     {
         public GuardiaCivil(Source source) : base(source)
         {
@@ -67,14 +68,14 @@ namespace PressCenter.Services.Sources.Policia
             return result;
         }
         
-        protected override DateTime GetDate(AngleSharp.Dom.IElement textHTML)
+        protected override async Task<DateTime> GetDateAsync(IElement textHTML)
         {
             var dateInfo = textHTML.QuerySelector("span.fecha-noticia").TextContent;
             var date = DateTime.ParseExact(dateInfo, "dd/MM/yy", CultureInfo.InvariantCulture);
             return date;
         }
 
-        protected override string GetImageUrl(AngleSharp.Dom.IElement textHTML)
+        protected override async Task<string> GetImageUrlAsync(IElement textHTML)
         {
             var imageUrl = string.Empty;
             var imageUrlPath = textHTML
@@ -93,24 +94,24 @@ namespace PressCenter.Services.Sources.Policia
             return imageUrl;
         }
 
-        protected override string GetTitle(AngleSharp.Dom.IElement textHTML)
+        protected override async Task<string> GetTitleAsync(IElement textHTML)
         {
             var titleInfo = textHTML.QuerySelector("div.titular-noticia");
             var titleText = titleInfo.TextContent;
             return titleText;
         }
 
-        protected override string GetOriginalUrl(AngleSharp.Dom.IElement textHTML)
+        protected override async Task<string> GetOriginalUrlAsync(IElement textHTML)
         {
             var titleInfo = textHTML.QuerySelector("div.titular-noticia");
             var newsUrl = titleInfo.QuerySelectorAll("a").OfType<IHtmlAnchorElement>().FirstOrDefault().Href;
             return newsUrl;
         }
 
-        protected override async Task<string> GetNewsContentAsync(AngleSharp.Dom.IElement textHTML)
+        protected override async Task<string> GetNewsContentAsync(IElement textHTML)
         {
             // to get full text
-            var pageFullNews =await this.Context.OpenAsync(this.GetOriginalUrl(textHTML));
+            var pageFullNews =await this.Context.OpenAsync(await this.GetOriginalUrlAsync(textHTML));
             var newsContentParagraphs = pageFullNews.QuerySelector("div.text-noticia");
             newsContentParagraphs.QuerySelector("p.titular-noticia").Remove();
             var scripts = newsContentParagraphs.QuerySelectorAll("script");
@@ -122,10 +123,10 @@ namespace PressCenter.Services.Sources.Policia
             return newsContentParagraphs.TextContent;
         }
 
-        protected override string GetRemoteId(AngleSharp.Dom.IElement textHTML)
+        protected override async Task<string> GetRemoteIdAsync(IElement textHTML)
         {
-            var remoteId = this.GetOriginalUrl(textHTML)
-                .Split('/')
+            var url = await this.GetOriginalUrlAsync(textHTML);
+            var remoteId =   url.Split('/')
                 .LastOrDefault()?
                 .Split('.')?[0];
             return remoteId;

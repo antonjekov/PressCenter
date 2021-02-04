@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace PressCenter.Services.Sources.Policia
 {
-    public class DGT : BaseSource
+    public class DGT : BaseSource<IElement>
     {
         public DGT(Source source) : base(source)
         {
@@ -83,14 +83,14 @@ namespace PressCenter.Services.Sources.Policia
             return result;
         }
 
-        protected override DateTime GetDate(IElement textHTML)
+        protected override async Task<DateTime> GetDateAsync(IElement textHTML)
         {
             var dateInfo = textHTML.QuerySelector("time").TextContent;
             var date = DateTime.ParseExact(dateInfo, "dd/MM/yyyy", CultureInfo.InvariantCulture);
             return date;
         }
 
-        protected override string GetImageUrl(IElement textHTML)
+        protected override async Task<string> GetImageUrlAsync(IElement textHTML)
         {
             var imageUrl = string.Empty;
             var imageUrlPath = textHTML
@@ -113,7 +113,7 @@ namespace PressCenter.Services.Sources.Policia
         {
             //var newsContent = textHTML.QuerySelector("p").TextContent;
             //return newsContent;
-            var pageFullNews = await this.Context.OpenAsync(this.GetOriginalUrl(textHTML));
+            var pageFullNews = await this.Context.OpenAsync(await this.GetOriginalUrlAsync(textHTML));
             var newsContentParagraphs = pageFullNews.QuerySelector("section.notap").QuerySelectorAll("p");
             newsContentParagraphs[0].Remove();
             var sb = new StringBuilder();
@@ -125,18 +125,18 @@ namespace PressCenter.Services.Sources.Policia
             return content;
         }
 
-        protected override string GetOriginalUrl(IElement textHTML)
+        protected override async Task<string> GetOriginalUrlAsync(IElement textHTML)
         {
             var newsUrl = textHTML.QuerySelectorAll("a").OfType<IHtmlAnchorElement>().FirstOrDefault().Href;
             return newsUrl;
         }
 
-        protected override string GetRemoteId(IElement textHTML)
+        protected override async Task<string> GetRemoteIdAsync(IElement textHTML)
         {
-            return this.GetTitle(textHTML);
+            return await this.GetTitleAsync(textHTML);
         }
 
-        protected override string GetTitle(IElement textHTML)
+        protected override async Task<string> GetTitleAsync(IElement textHTML)
         {
             var titleText = textHTML.QuerySelector("h4").TextContent;
             return titleText;

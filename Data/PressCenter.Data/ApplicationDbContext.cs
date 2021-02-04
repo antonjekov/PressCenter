@@ -29,6 +29,10 @@
 
         public DbSet<News> News { get; set; }
 
+        public DbSet<TopNews> TopNews { get; set; }
+
+        public DbSet<TopNewsSource> TopNewsSources { get; set; }
+
         public override int SaveChanges() => this.SaveChanges(true);
 
         public override int SaveChanges(bool acceptAllChangesOnSuccess)

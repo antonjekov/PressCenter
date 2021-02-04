@@ -35,6 +35,14 @@
             await this.newsRepository.SaveChangesAsync();
         }
 
+        public T GetById<T>(int id)
+        {
+            return this.newsRepository.All()
+                .Where(x => x.Id == id)
+                .To<T>()
+                .FirstOrDefault();
+        }
+
         public IEnumerable<T> GetAll<T>()
         {
             return this.newsRepository.All()

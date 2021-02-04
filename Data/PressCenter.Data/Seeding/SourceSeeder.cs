@@ -33,7 +33,7 @@
                         "Policia Nacional",
                         "Policia Nacional España",
                         " ",
-                        "https://www.policia.es/prensa/historico/indice.php?y={0}&_pagi_pg={1}",
+                        "https://www.policia.es/_es/comunicacion_salaprensa.php",
                         "https://www.policia.es/",
                         "/img/policiaNacional.png"),
                         ("PressCenter.Services.Sources.Policia.GuardiaCivil",
@@ -50,6 +50,13 @@
                         "https://www.dgt.es/es/prensa/notas-de-prensa/{0}/",
                         "https://www.dgt.es",
                         "/img/dgt.png"),
+                        //("PressCenter.Services.Sources.Medias.Marca",
+                        //"marca.com",
+                        //"marca.com",
+                        //" ",
+                        //"https://www.marca.com/",
+                        //"https://www.marca.com/",
+                        //"/img/marca.png"),
                     };
 
             foreach (var source in sources)

@@ -5,9 +5,18 @@
     using System;
     using System.Globalization;
     using System.Text.RegularExpressions;
+    using Slugify;
 
     public class NewsViewModel : IMapFrom<News>
     {
+        private SlugHelper slugHelper;
+
+        public NewsViewModel()
+        {
+            this.slugHelper = new SlugHelper();
+        }
+        public int Id { get; set; }
+
         public string Title { get; set; }
 
         public string Content { get; set; }
@@ -27,6 +36,8 @@
         public string ShortDate => this.Date.ToString("D", new CultureInfo("es-ES"));
 
         public string ShortContent => this.GetShortContent(200);
+
+        public string Slug => this.slugHelper.GenerateSlug(this.Title);
 
         private string GetShortContent(int maxLength)
         {
