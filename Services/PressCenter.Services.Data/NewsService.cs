@@ -43,6 +43,14 @@
                 .FirstOrDefault();
         }
 
+        public IEnumerable<News> GetAll()
+        {
+            return this.newsRepository.All()
+                .OrderByDescending(x => x.Date)
+                .ThenByDescending(x => x.CreatedOn)
+                .ToList();
+        }
+
         public IEnumerable<T> GetAll<T>()
         {
             return this.newsRepository.All()
@@ -72,5 +80,16 @@
                 .Count();
             return result;
         }
+
+        public async Task DeleteAsync(int id)
+        {
+            var item = this.newsRepository.All().FirstOrDefault(x => x.Id == id);
+            if (item != null)
+            {
+                this.newsRepository.Delete(item);
+                await this.newsRepository.SaveChangesAsync();
+            }
+        }
+
     }
 }

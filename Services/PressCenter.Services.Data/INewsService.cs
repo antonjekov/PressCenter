@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
-
+    using PressCenter.Data.Models;
     using PressCenter.Services.Sources;
 
     public interface INewsService
@@ -13,10 +13,14 @@
 
         IEnumerable<T> GetAll<T>();
 
+        IEnumerable<News> GetAll();
+
         IEnumerable<T> GetAll<T>(int page, int itemsPerPage);
 
         int Count();
 
         int NewsTodayCount();
+
+        Task DeleteAsync(int id);
     }
 }
