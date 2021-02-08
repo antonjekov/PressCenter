@@ -15,6 +15,8 @@
 
         IEnumerable<News> GetAll();
 
+        List<string> GetAllRemoteIds();
+
         IEnumerable<T> GetAll<T>(int page, int itemsPerPage);
 
         int Count();

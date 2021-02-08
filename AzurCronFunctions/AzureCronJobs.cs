@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -7,23 +8,32 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using PressCenter.Data;
+using PressCenter.Data.Common.Repositories;
+using PressCenter.Data.Models;
+using PressCenter.Services.CronJobs;
 using PressCenter.Services.Data;
+using PressCenter.Web.ViewModels.News;
 
 namespace AzurCronFunctions
 {
     public class AzureCronJobs
     {
-        private AzureDataContext azureDataContext;
+        private ApplicationDbContext azureDataContext;
         private INewsService newsService;
+        private ISourceService sourceService;
+        private IGetNewPublicationsJob newPublicationsJob;
 
-        public AzureCronJobs(AzureDataContext azureDataContext, INewsService newsService)
+        public AzureCronJobs(ApplicationDbContext azureDataContext, INewsService newsService, ISourceService sourceService, IGetNewPublicationsJob newPublicationsJob)
         {
             this.azureDataContext = azureDataContext;
             this.newsService = newsService;
-        }
+            this.sourceService = sourceService;
+            this.newPublicationsJob = newPublicationsJob;
+        }        
 
         [FunctionName("DeleteOldNews")]
-        public async Task Run([TimerTrigger("0 0 3 * * *")]TimerInfo myTimer, ILogger log)
+        public async Task Run([TimerTrigger("0 0 3 * * *")] TimerInfo myTimer, ILogger log)
         {
             var newsToDelete = await azureDataContext.News.Where(x => x.Date <= DateTime.Today.AddDays(-30)).ToListAsync();
             foreach (var item in newsToDelete)
@@ -34,16 +44,16 @@ namespace AzurCronFunctions
             log.LogInformation($"Azure DeleteOldNews function executed at: {DateTime.Now}");
         }
 
+        // "*/30 * * * * *" - 30 secconds; "0 0 * * * *" - 1 hour;
         [FunctionName("SeedNews")]
-        public async Task SeedNews([TimerTrigger("0 0 3 * * *")] TimerInfo myTimer, ILogger log)
+        public async Task SeedNews([TimerTrigger("0 0 * * * *")] TimerInfo myTimer, ILogger log)
         {
-            var newsToDelete = await azureDataContext.News.Where(x => x.Date <= DateTime.Today.AddDays(-30)).ToListAsync();
-            foreach (var item in newsToDelete)
+            var sources = this.sourceService.GetAll();
+            foreach (var item in sources)
             {
-                azureDataContext.News.Remove(item);
-                await azureDataContext.SaveChangesAsync();
+                await newPublicationsJob.StartAsync(item);
+                log.LogInformation($"{item.Name} seed processed.");
             }
-            log.LogInformation($"Azure DeleteOldNews function executed at: {DateTime.Now}");
         }
 
         [FunctionName("GetAllNews")]
@@ -52,9 +62,8 @@ namespace AzurCronFunctions
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
-            var allNews = await azureDataContext.News.FirstOrDefaultAsync();
-            //var news = newsService.GetAll();
-            return new OkObjectResult(allNews);
+            var news = newsService.GetAll<NewsViewModel>();
+            return new OkObjectResult(news);
         }
 
         [FunctionName("GetAllSources")]

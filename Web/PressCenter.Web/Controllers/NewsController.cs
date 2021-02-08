@@ -13,14 +13,12 @@
     public class NewsController : BaseController
     {
         private INewsService newsService;
-        private IDeletableEntityRepository<News> newsRepository;
         private ISourceService sourceService;
         private ITopNewsService topNewsService;
 
-        public NewsController(INewsService newsService, ITopNewsService topNewsService, IDeletableEntityRepository<News> newsRepository, ISourceService sourceService)
+        public NewsController(INewsService newsService, ITopNewsService topNewsService, ISourceService sourceService)
         {
             this.newsService = newsService;
-            this.newsRepository = newsRepository;
             this.sourceService = sourceService;
             this.topNewsService = topNewsService;
         }
@@ -30,7 +28,7 @@
             var sources = this.sourceService.GetAll();
             foreach (var source in sources)
             {
-                await new GetNewPublicationsJob(this.newsRepository, this.newsService).StartAsync(source);
+                await new GetNewPublicationsJob(this.newsService).StartAsync(source);
             }
 
             return this.Json("ok");

@@ -78,7 +78,7 @@
                         options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
                     }).AddRazorRuntimeCompilation();
             services.AddRazorPages();
-            services.AddDatabaseDeveloperPageExceptionFilter();
+            //services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.AddSingleton(this.configuration);
 
@@ -106,7 +106,7 @@
                 var dbContext = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 dbContext.Database.Migrate();
                 new ApplicationDbContextSeeder().SeedAsync(dbContext, serviceScope.ServiceProvider).GetAwaiter().GetResult();
-                this.SeedHangfireJobs(recurringJobManager, dbContext);
+                //this.SeedHangfireJobs(recurringJobManager, dbContext);
             }
 
             if (env.IsDevelopment())
@@ -142,25 +142,25 @@
                     });
         }
 
-        private void SeedHangfireJobs(IRecurringJobManager recurringJobManager, ApplicationDbContext dbContext)
-        {
-            var sources = dbContext.Sources.Where(x => !x.IsDeleted).ToList();
-            foreach (var source in sources)
-            {
-                recurringJobManager.AddOrUpdate<GetNewPublicationsJob>(
-                    $"GetNewPublicationsJob{source.Id}_{source.ShortName}",
-                    x => x.StartAsync(source),
-                    "*/59 * * * *");
-            }
+        //private void SeedHangfireJobs(IRecurringJobManager recurringJobManager, ApplicationDbContext dbContext)
+        //{
+        //    var sources = dbContext.Sources.Where(x => !x.IsDeleted).ToList();
+        //    foreach (var source in sources)
+        //    {
+        //        recurringJobManager.AddOrUpdate<GetNewPublicationsJob>(
+        //            $"GetNewPublicationsJob{source.Id}_{source.ShortName}",
+        //            x => x.StartAsync(source),
+        //            "*/59 * * * *");
+        //    }
 
-            //var topNewsSources = dbContext.TopNewsSources.Where(x => !x.IsDeleted).ToList();
-            //foreach (var source in topNewsSources)
-            //{
-            //    recurringJobManager.AddOrUpdate<GetNewTopNewsJob>(
-            //        $"GetNewTopNewsJob{source.Id}_{source.Name}",
-            //        x => x.StartAsync(source),
-            //        "*/5 * * * *");
-            //}
-        }
+        //    //var topNewsSources = dbContext.TopNewsSources.Where(x => !x.IsDeleted).ToList();
+        //    //foreach (var source in topNewsSources)
+        //    //{
+        //    //    recurringJobManager.AddOrUpdate<GetNewTopNewsJob>(
+        //    //        $"GetNewTopNewsJob{source.Id}_{source.Name}",
+        //    //        x => x.StartAsync(source),
+        //    //        "*/5 * * * *");
+        //    //}
+        //}
     }
 }

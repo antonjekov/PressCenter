@@ -91,5 +91,10 @@
             }
         }
 
+        public List<string> GetAllRemoteIds()
+        {
+            var remoteIds = this.newsRepository.AllAsNoTracking().Select(x => x.RemoteId).ToList();
+            return remoteIds;
+        }
     }
 }

@@ -43,9 +43,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PressCenter.Services.Source
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PressCenter.Services.CronJobs", "PressCenter.Services.CronJobs\PressCenter.Services.CronJobs.csproj", "{B5197F11-6816-4707-AAC3-94A6D983124D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzurCronFunctions", "AzurCronFunctions\AzurCronFunctions.csproj", "{3DE4B8EC-CC74-4CDC-A19B-4A6475BA4F4C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PressCenter.AzureFunctions.Models", "PressCenter.AzureFunctions.Models\PressCenter.AzureFunctions.Models.csproj", "{AFF0AFEE-9EE2-44F9-82A4-B0C84B6223E2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzurCronFunctions", "AzurCronFunctions\AzurCronFunctions.csproj", "{3DE4B8EC-CC74-4CDC-A19B-4A6475BA4F4C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -121,10 +119,6 @@ Global
 		{3DE4B8EC-CC74-4CDC-A19B-4A6475BA4F4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3DE4B8EC-CC74-4CDC-A19B-4A6475BA4F4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3DE4B8EC-CC74-4CDC-A19B-4A6475BA4F4C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AFF0AFEE-9EE2-44F9-82A4-B0C84B6223E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AFF0AFEE-9EE2-44F9-82A4-B0C84B6223E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AFF0AFEE-9EE2-44F9-82A4-B0C84B6223E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AFF0AFEE-9EE2-44F9-82A4-B0C84B6223E2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -146,7 +140,6 @@ Global
 		{074F2086-1B15-454E-9F4F-C8F97194952D} = {516E002B-9E6E-4456-B7F6-EAA353966DE6}
 		{B5197F11-6816-4707-AAC3-94A6D983124D} = {516E002B-9E6E-4456-B7F6-EAA353966DE6}
 		{3DE4B8EC-CC74-4CDC-A19B-4A6475BA4F4C} = {E389DEB6-5F90-444B-A054-12A10D39C76F}
-		{AFF0AFEE-9EE2-44F9-82A4-B0C84B6223E2} = {ACBE44C4-E198-45E2-BA02-6655250A0006}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {384484BE-4680-4529-9CC2-AD37BA4D12D1}
