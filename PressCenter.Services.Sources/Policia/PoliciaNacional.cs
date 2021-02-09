@@ -46,7 +46,6 @@ namespace PressCenter.Services.Sources.Policia
         public override async Task<IEnumerable<RemoteNews>> GetNewPublicationsAsync(List<string> existingNewsRemoteIds)
         {
             var result = new List<RemoteNews>();
-            var remoteIdExist = false;
             await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
             var browser = await Puppeteer.LaunchAsync(new LaunchOptions
             {
@@ -64,7 +63,6 @@ namespace PressCenter.Services.Sources.Policia
                 RemoteNews input = await GetInfoAsync(item);
                 if (existingNewsRemoteIds.Contains(input.RemoteId))
                 {
-                    remoteIdExist = true;
                     break;
                 }
                 result.Add(input);
@@ -76,7 +74,7 @@ namespace PressCenter.Services.Sources.Policia
         protected override async Task<DateTime> GetDateAsync(ElementHandle textHTML)
         {
             var elements = await textHTML.QuerySelectorAllAsync("p");
-            var dataInfo = await elements[elements.Length - 1].GetPropertyAsync("innerText");
+            var dataInfo = await elements[^1].GetPropertyAsync("innerText");
             var dataString = await dataInfo.JsonValueAsync<string>();
             var data = DateTime.ParseExact(dataString, "dd/MM/yy", CultureInfo.InvariantCulture);
             return data;
@@ -85,7 +83,7 @@ namespace PressCenter.Services.Sources.Policia
         protected override async Task<string> GetImageUrlAsync(ElementHandle textHTML)
         {
             var img = await textHTML.QuerySelectorAsync("img");
-            string imgUrl = String.Empty;
+            string imgUrl;
             if (img != null)
             {
                 var imgUrlInfo = await img.GetPropertyAsync("src");
@@ -133,7 +131,7 @@ namespace PressCenter.Services.Sources.Policia
         protected override async Task<string> GetRemoteIdAsync(ElementHandle textHTML)
         {
             var hrefString = await this.GetOriginalUrlAsync(textHTML);
-            var originalId = hrefString.Substring(hrefString.Length - 4);
+            var originalId = hrefString[^4..];
             return originalId;
         }
 

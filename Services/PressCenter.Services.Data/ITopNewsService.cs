@@ -1,11 +1,10 @@
-﻿using PressCenter.Services.Sources;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PressCenter.Services.Data
+﻿namespace PressCenter.Services.Data
 {
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+
+    using PressCenter.Services.Sources;
+
     public interface ITopNewsService
     {
         Task AddAsync(TopNews topNews, int sourceId);
@@ -13,6 +12,8 @@ namespace PressCenter.Services.Data
         T GetById<T>(int id);
 
         IEnumerable<T> GetAll<T>();
+
+        List<string> GetAllRemoteIds();
 
         int Count();
     }

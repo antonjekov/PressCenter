@@ -1,11 +1,10 @@
-﻿using PressCenter.Data.Common.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PressCenter.Data.Models
+﻿namespace PressCenter.Data.Models
 {
-    public class TopNewsSource: BaseDeletableModel<int>
+    using System.Collections.Generic;
+
+    using PressCenter.Data.Common.Models;
+
+    public class TopNewsSource : BaseDeletableModel<int>
     {
         public TopNewsSource()
         {

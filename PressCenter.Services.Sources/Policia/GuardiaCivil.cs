@@ -77,12 +77,12 @@ namespace PressCenter.Services.Sources.Policia
 
         protected override async Task<string> GetImageUrlAsync(IElement textHTML)
         {
-            var imageUrl = string.Empty;
             var imageUrlPath = textHTML
                .QuerySelector("div.image-left")?
                .QuerySelector("img")
                .GetAttribute("src");
 
+            string imageUrl;
             if (imageUrlPath != null)
             {
                 imageUrl = this.BaseUrl + imageUrlPath;

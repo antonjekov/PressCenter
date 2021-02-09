@@ -15,6 +15,6 @@ namespace AzurCronFunctions
 
         public DbSet<News> News { get; set; }
 
-        public DbSet<Source> Sources { get; set; }
+        public DbSet<TopNews> Sources { get; set; }
     }
 }

@@ -19,17 +19,21 @@ namespace AzurCronFunctions
 {
     public class AzureCronJobs
     {
-        private ApplicationDbContext azureDataContext;
-        private INewsService newsService;
-        private ISourceService sourceService;
-        private IGetNewPublicationsJob newPublicationsJob;
+        private readonly ApplicationDbContext azureDataContext;
+        private readonly INewsService newsService;
+        private readonly ISourceService sourceService;
+        private readonly ITopNewsSourceService topNewsSourceService;
+        private readonly IGetNewPublicationsJob newPublicationsJob;
+        private readonly IGetNewTopNewsJob getNewTopNewsJob;
 
-        public AzureCronJobs(ApplicationDbContext azureDataContext, INewsService newsService, ISourceService sourceService, IGetNewPublicationsJob newPublicationsJob)
+        public AzureCronJobs(ApplicationDbContext azureDataContext, INewsService newsService, ISourceService sourceService, ITopNewsSourceService topNewsSourceService, IGetNewPublicationsJob newPublicationsJob, IGetNewTopNewsJob getNewTopNewsJob)
         {
             this.azureDataContext = azureDataContext;
             this.newsService = newsService;
             this.sourceService = sourceService;
+            this.topNewsSourceService = topNewsSourceService;
             this.newPublicationsJob = newPublicationsJob;
+            this.getNewTopNewsJob = getNewTopNewsJob;
         }        
 
         [FunctionName("DeleteOldNews")]
@@ -44,7 +48,7 @@ namespace AzurCronFunctions
             log.LogInformation($"Azure DeleteOldNews function executed at: {DateTime.Now}");
         }
 
-        // "*/30 * * * * *" - 30 secconds; "0 0 * * * *" - 1 hour;
+        // "*/30 * * * * *" - 30 seconds; "0 0 * * * *" - 1 hour; "0 */30 * * * *" - 30 minutes
         [FunctionName("SeedNews")]
         public async Task SeedNews([TimerTrigger("0 0 * * * *")] TimerInfo myTimer, ILogger log)
         {
@@ -52,6 +56,17 @@ namespace AzurCronFunctions
             foreach (var item in sources)
             {
                 await newPublicationsJob.StartAsync(item);
+                log.LogInformation($"{item.Name} seed processed.");
+            }
+        }
+
+        [FunctionName("SeedTopNews")]
+        public async Task SeedTopNews([TimerTrigger("0 */45 * * * *")] TimerInfo myTimer, ILogger log)
+        {
+            var sources = this.topNewsSourceService.GetAll();
+            foreach (var item in sources)
+            {
+                await getNewTopNewsJob.StartAsync(item);
                 log.LogInformation($"{item.Name} seed processed.");
             }
         }

@@ -1,17 +1,15 @@
-﻿using PressCenter.Data.Common.Repositories;
-using PressCenter.Data.Models;
-using PressCenter.Services.Mapping;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PressCenter.Services.Data
+﻿namespace PressCenter.Services.Data
 {
+    using System.Collections.Generic;
+    using System.Linq;
+
+    using PressCenter.Data.Common.Repositories;
+    using PressCenter.Data.Models;
+    using PressCenter.Services.Mapping;
+
     public class SourceService : ISourceService
     {
-        private IDeletableEntityRepository<Source> sourceRepository;
+        private readonly IDeletableEntityRepository<Source> sourceRepository;
 
         public SourceService(IDeletableEntityRepository<Source> sourceRepository)
         {

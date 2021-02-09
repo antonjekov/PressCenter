@@ -22,20 +22,13 @@
                 string Url,
                 string DefaultImageUrl)>
                     {
-                        //("PressCenter.Services.Sources.SpanishGovernment.MinisterioInteriorSource",
-                        //"Ministerio del Interior",
-                        //"Ministerio del Interior - Gobierno de España",
-                        //" ",
-                        //"http://www.interior.gob.es/es/prensa/noticias?p_p_id=101_INSTANCE_GHU8Ap6ztgsg&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view&p_p_col_id=column-2&p_p_col_count=1&_101_INSTANCE_GHU8Ap6ztgsg_delta=10&_101_INSTANCE_GHU8Ap6ztgsg_keywords=&_101_INSTANCE_GHU8Ap6ztgsg_advancedSearch=false&_101_INSTANCE_GHU8Ap6ztgsg_andOperator=true&p_r_p_564233524_resetCur=false&_101_INSTANCE_GHU8Ap6ztgsg_cur=",
-                        //"http://www.interior.gob.es/",
-                        //"/img/ministerioInterior.png"),
-                        //("PressCenter.Services.Sources.Policia.PoliciaNacional",
-                        //"Policia Nacional",
-                        //"Policia Nacional España",
-                        //" ",
-                        //"https://www.policia.es/_es/comunicacion_salaprensa.php",
-                        //"https://www.policia.es/",
-                        //"/img/policiaNacional.png"),
+                        // ("PressCenter.Services.Sources.Policia.PoliciaNacional",
+                        // "Policia Nacional",
+                        // "Policia Nacional España",
+                        // " ",
+                        // "https://www.policia.es/_es/comunicacion_salaprensa.php",
+                        // "https://www.policia.es/",
+                        // "/img/policiaNacional.png"),
                         ("PressCenter.Services.Sources.Policia.GuardiaCivil",
                         "Guardia Civil",
                         "Guardia Civil España",
@@ -50,29 +43,22 @@
                         "https://www.dgt.es/es/prensa/notas-de-prensa/{0}/",
                         "https://www.dgt.es",
                         "/img/dgt.png"),
-                        //("PressCenter.Services.Sources.Medias.Marca",
-                        //"marca.com",
-                        //"marca.com",
-                        //" ",
-                        //"https://www.marca.com/",
-                        //"https://www.marca.com/",
-                        //"/img/marca.png"),
                     };
 
-            foreach (var source in sources)
+            foreach (var (typeName, shortName, name, description, entryPointUrl, url, defaultImageUrl) in sources)
             {
-                if (!dbContext.Sources.Any(x => x.EntryPointUrl == source.EntryPointUrl))
+                if (!dbContext.Sources.Any(x => x.EntryPointUrl == entryPointUrl))
                 {
                     await dbContext.Sources.AddAsync(
                         new Source
                         {
-                            TypeName = source.TypeName,
-                            ShortName = source.ShortName,
-                            Name = source.Name,
-                            Description = source.Description,
-                            EntryPointUrl = source.EntryPointUrl,
-                            Url = source.Url,
-                            DefaultImageUrl = source.DefaultImageUrl,
+                            TypeName = typeName,
+                            ShortName = shortName,
+                            Name = name,
+                            Description = description,
+                            EntryPointUrl = entryPointUrl,
+                            Url = url,
+                            DefaultImageUrl = defaultImageUrl,
                         });
                 }
             }

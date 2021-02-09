@@ -19,16 +19,16 @@
                         ("PressCenter.Services.Sources.Medias.ElPais", "elpais.com", "https://elpais.com/"),
                     };
 
-            foreach (var source in sources)
+            foreach (var (typeName, name, url) in sources)
             {
-                if (!dbContext.TopNewsSources.Any(x => x.Url == source.Url))
+                if (!dbContext.TopNewsSources.Any(x => x.Url == url))
                 {
                     await dbContext.TopNewsSources.AddAsync(
                         new TopNewsSource
                         {
-                            TypeName = source.TypeName,
-                            Name = source.Name,
-                            Url = source.Url,
+                            TypeName = typeName,
+                            Name = name,
+                            Url = url,
                         });
                 }
             }

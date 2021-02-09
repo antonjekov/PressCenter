@@ -1,7 +1,8 @@
 ﻿namespace PressCenter.Data.Models
 {
-    using PressCenter.Data.Common.Models;
     using System;
+
+    using PressCenter.Data.Common.Models;
 
     public class News : BaseDeletableModel<int>
     {

@@ -10,7 +10,7 @@
 
     public class TopNewsService : ITopNewsService
     {
-        private IDeletableEntityRepository<TopNews> newsRepository;
+        private readonly IDeletableEntityRepository<TopNews> newsRepository;
 
         public TopNewsService(IDeletableEntityRepository<TopNews> newsRepository)
         {
@@ -47,6 +47,12 @@
                 .Where(x => x.Id == id)
                 .To<T>()
                 .FirstOrDefault();
+        }
+
+        public List<string> GetAllRemoteIds()
+        {
+            var remoteIds = this.newsRepository.AllAsNoTracking().Select(x => x.RemoteId).ToList();
+            return remoteIds;
         }
     }
 }

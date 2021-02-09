@@ -4,10 +4,8 @@
 
     using PressCenter.Data.Models;
 
-    public interface ISourceService
+    public interface ITopNewsSourceService
     {
-        IEnumerable<Source> GetAll();
-
-        IEnumerable<T> GetAll<T>();
+        IEnumerable<TopNewsSource> GetAll();
     }
 }

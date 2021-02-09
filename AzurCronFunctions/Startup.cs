@@ -39,7 +39,9 @@ namespace AzurCronFunctions
             builder.Services.AddTransient<INewsService, NewsService>();
             builder.Services.AddTransient<ITopNewsService, TopNewsService>();
             builder.Services.AddTransient<ISourceService, SourceService>();
+            builder.Services.AddTransient<ITopNewsSourceService, TopNewsSourceService>();
             builder.Services.AddTransient<IGetNewPublicationsJob, GetNewPublicationsJob>();
+            builder.Services.AddTransient<IGetNewTopNewsJob, GetNewTopNewsJob>();
             
             // Set AutoMapper
             AutoMapperConfig.RegisterMappings(typeof(ErrorViewModel).GetTypeInfo().Assembly);

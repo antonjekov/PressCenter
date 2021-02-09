@@ -2,10 +2,9 @@
 {
     using System.Diagnostics;
 
-    using PressCenter.Web.ViewModels;
-
     using Microsoft.AspNetCore.Mvc;
     using PressCenter.Services.Data;
+    using PressCenter.Web.ViewModels;
     using PressCenter.Web.ViewModels.News;
     using PressCenter.Web.ViewModels.TopNews;
 

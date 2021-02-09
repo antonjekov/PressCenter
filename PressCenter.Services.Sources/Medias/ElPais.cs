@@ -15,46 +15,82 @@ namespace PressCenter.Services.Sources.Medias
         public override async Task<IEnumerable<TopNews>> GetAllPublicationsAsync()
         {
             var result = new List<TopNews>();
-            await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
-            var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+            //await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
+            //var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+            //{
+            //    Headless = true
+            //});
+            var options = new ConnectOptions()
             {
-                Headless = true
-            });
-            var page = await browser.NewPageAsync();
-            var userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.0 Safari/537.36";
-            await page.SetUserAgentAsync(userAgent);
-            await page.GoToAsync(this.Url);
-            var topNews = await page.QuerySelectorAsync(".first_column");
-            TopNews input = await GetInfoAsync(topNews);
-            result.Add(input);
-            await browser.CloseAsync();
-            return result;
+                BrowserWSEndpoint = $"wss://chrome.browserless.io/"
+            };
+            var browser = await Puppeteer.ConnectAsync(options);
+            try
+            {
+                var page = await browser.NewPageAsync();
+                var userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.0 Safari/537.36";
+                await page.SetUserAgentAsync(userAgent);
+                await page.GoToAsync(this.Url);
+                var topNews = await page.QuerySelectorAsync(".first_column");
+                TopNews input = await GetInfoAsync(topNews);
+                result.Add(input);
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                if (browser != null)
+                {
+                    await browser.CloseAsync();
+                }
+            }
         }
 
         public override async Task<IEnumerable<TopNews>> GetNewPublicationsAsync(List<string> existingNewsRemoteIds)
         {
             var result = new List<TopNews>();
-            await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
-            var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+            //await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
+            //var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+            //{
+            //    Headless = true
+            //});
+            var options = new ConnectOptions()
             {
-                Headless = true
-            });
-            var page = await browser.NewPageAsync();
-            var userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.0 Safari/537.36";
-            await page.SetUserAgentAsync(userAgent);
-            await page.GoToAsync(this.Url);
-            var topNews = await page.QuerySelectorAsync(".first_column");
-            TopNews input = await GetInfoAsync(topNews);
-            if (existingNewsRemoteIds.Contains(input.RemoteId))
+                BrowserWSEndpoint = $"wss://chrome.browserless.io/"
+            };
+            var browser = await Puppeteer.ConnectAsync(options);
+
+            try
             {
-                await browser.CloseAsync();
-                return result;
+                var page = await browser.NewPageAsync();
+                var userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.0 Safari/537.36";
+                await page.SetUserAgentAsync(userAgent);
+                await page.GoToAsync(this.Url);
+                var topNews = await page.QuerySelectorAsync(".first_column");
+                TopNews input = await GetInfoAsync(topNews);
+                if (existingNewsRemoteIds.Contains(input.RemoteId))
+                {
+                    return result;
+                }
+                else
+                {
+                    result.Add(input);
+                    return result;
+                }
             }
-            else
+            catch (Exception)
             {
-                result.Add(input);
-                await browser.CloseAsync();
-                return result;
+                throw;
+            }
+            finally
+            {
+                if (browser != null)
+                {
+                    await browser.CloseAsync();
+                }
             }
         }
 

@@ -1,20 +1,21 @@
 ﻿namespace PressCenter.Web.ViewModels.News
 {
-    using PressCenter.Services.Mapping;
-    using PressCenter.Data.Models;
     using System;
     using System.Globalization;
-    using System.Text.RegularExpressions;
+
+    using PressCenter.Data.Models;
+    using PressCenter.Services.Mapping;
     using Slugify;
 
     public class NewsViewModel : IMapFrom<News>
     {
-        private SlugHelper slugHelper;
+        private readonly SlugHelper slugHelper;
 
         public NewsViewModel()
         {
             this.slugHelper = new SlugHelper();
         }
+
         public int Id { get; set; }
 
         public string Title { get; set; }
