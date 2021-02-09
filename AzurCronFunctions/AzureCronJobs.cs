@@ -72,7 +72,7 @@ namespace AzurCronFunctions
         }
 
         [FunctionName("GetAllNews")]
-        public async Task<IActionResult> GetAllNews(
+        public IActionResult GetAllNews(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
             ILogger log)
         {
@@ -82,12 +82,12 @@ namespace AzurCronFunctions
         }
 
         [FunctionName("GetAllSources")]
-        public async Task<IActionResult> GetAllSources(
+        public IActionResult GetAllSources(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
-            var allSources = await azureDataContext.Sources.FirstOrDefaultAsync();
+            var allSources = sourceService.GetAll();
             return new OkObjectResult(allSources);
         }
     }

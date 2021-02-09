@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using AngleSharp;
-using AngleSharp.Js;
-using PressCenter.Data.Models;
-
-namespace PressCenter.Services.Sources
+﻿namespace PressCenter.Services.Sources
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using AngleSharp;
+    using PressCenter.Data.Models;
     public abstract class BaseSource<T>
     {
-        protected BaseSource (Source source)
+        protected BaseSource(Source source)
         {
             this.Context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
-            this.ContextJs = BrowsingContext.New(Configuration.Default.WithJs());            
+            this.ContextJs = BrowsingContext.New(Configuration.Default.WithJs());
             this.BaseUrl = source.Url;
             this.EntryPointUrl = source.EntryPointUrl;
             this.DefaultImageUrl = source.DefaultImageUrl;
@@ -27,12 +24,12 @@ namespace PressCenter.Services.Sources
 
         protected virtual async Task<RemoteNews> GetInfoAsync(T textHTML)
         {
-            var date =await GetDateAsync(textHTML);
-            var imageUrl =await GetImageUrlAsync(textHTML);
-            var title = await GetTitleAsync(textHTML);
-            var originalUrl =await GetOriginalUrlAsync(textHTML);
-            var content =(await GetNewsContentAsync(textHTML)).Trim();
-            var remoteId =await GetRemoteIdAsync(textHTML);
+            var date = await GetDateAsync(textHTML);
+            var imageUrl = await GetImageUrlAsync(textHTML);
+            var title = (await GetTitleAsync(textHTML)).Trim();
+            var originalUrl = await GetOriginalUrlAsync(textHTML);
+            var content = (await GetNewsContentAsync(textHTML)).Trim();
+            var remoteId = await GetRemoteIdAsync(textHTML);
             var news = new RemoteNews(title, content, date, imageUrl, remoteId, originalUrl);
             return news;
         }
