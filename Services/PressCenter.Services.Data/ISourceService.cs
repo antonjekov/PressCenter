@@ -9,5 +9,7 @@
         IEnumerable<Source> GetAll();
 
         IEnumerable<T> GetAll<T>();
+
+        List<string> GetAllNewsRemoteIdsForSource(int sourceId);
     }
 }

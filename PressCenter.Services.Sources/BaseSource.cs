@@ -9,8 +9,6 @@
     {
         protected BaseSource(Source source)
         {
-            this.Context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
-            this.ContextJs = BrowsingContext.New(Configuration.Default.WithJs());
             this.BaseUrl = source.Url;
             this.EntryPointUrl = source.EntryPointUrl;
             this.DefaultImageUrl = source.DefaultImageUrl;
@@ -19,9 +17,7 @@
         protected string EntryPointUrl { get; }
         protected string DefaultImageUrl { get; }
         protected string BaseUrl { get; }
-        protected IBrowsingContext Context { get; }
-        public IBrowsingContext ContextJs { get; }
-
+        
         protected virtual async Task<RemoteNews> GetInfoAsync(T textHTML)
         {
             var date = await GetDateAsync(textHTML);

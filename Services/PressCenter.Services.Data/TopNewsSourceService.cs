@@ -20,5 +20,17 @@
             var sources = this.topNewsSourceRepository.All().ToList();
             return sources;
         }
+
+        public List<string> GetAllNewsRemoteIdsForSource(int sourceId)
+        {
+            var source = this.topNewsSourceRepository.AllAsNoTracking().FirstOrDefault(x => x.Id == sourceId);
+            if (source == null)
+            {
+                return new List<string>();
+            }
+
+            var remoteIds = source.TopNews.Select(x => x.RemoteId).ToList();
+            return remoteIds;
+        }
     }
 }

@@ -7,7 +7,7 @@
     using PressCenter.Data.Models;
     using PressCenter.Services.Mapping;
 
-    public class SourceViewModel : IMapFrom<TopNews>
+    public class SourceViewModel : IMapFrom<Source>
     {
         public string TypeName { get; set; }
 

@@ -4,7 +4,7 @@
 
     using PressCenter.Data.Common.Models;
 
-    public class News : BaseDeletableModel<int>
+    public class News : BaseDeletableModel<int>, INews
     {
         public string Title { get; set; }
 

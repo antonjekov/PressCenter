@@ -1,12 +1,8 @@
-﻿using AngleSharp;
-using AngleSharp.Dom;
-using AngleSharp.Html.Dom;
-using PressCenter.Data.Models;
+﻿using PressCenter.Data.Models;
 using PuppeteerSharp;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,54 +17,91 @@ namespace PressCenter.Services.Sources.Policia
         public override async Task<IEnumerable<RemoteNews>> GetAllPublicationsAsync()
         {
             var result = new List<RemoteNews>();
-            await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
-            var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+            //await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
+            //var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+            //{
+            //    Headless = true
+            //});
+            var options = new ConnectOptions()
             {
-                Headless = true
-            });
-            var page = await browser.NewPageAsync();
-            var userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.0 Safari/537.36";
-            await page.SetUserAgentAsync(userAgent);
-            await page.GoToAsync(this.EntryPointUrl);
-            await page.ClickAsync("#aceptaCookies");
-            await page.WaitForNavigationAsync();
-            var noticeiro = await page.QuerySelectorAsync("#div_noticiero");
-            var noticias = await noticeiro.QuerySelectorAllAsync("li");
-            foreach (var item in noticias)
+                BrowserWSEndpoint = $"wss://chrome.browserless.io/"
+            };
+            var browser = await Puppeteer.ConnectAsync(options);
+            try
             {
-                RemoteNews input = await GetInfoAsync(item);
-                result.Add(input);
+                var page = await browser.NewPageAsync();
+                var userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.0 Safari/537.36";
+                await page.SetUserAgentAsync(userAgent);
+                await page.GoToAsync(this.EntryPointUrl);
+                await page.ClickAsync("#aceptaCookies");
+                await page.WaitForNavigationAsync();
+                var noticeiro = await page.QuerySelectorAsync("#div_noticiero");
+                var noticias = await noticeiro.QuerySelectorAllAsync("li");
+                foreach (var item in noticias)
+                {
+                    RemoteNews input = await GetInfoAsync(item);
+                    result.Add(input);
+                }
+                return result;
             }
-            await browser.CloseAsync();
-            return result;
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                if (browser != null)
+                {
+                    await browser.CloseAsync();
+                }
+            }
         }
 
         public override async Task<IEnumerable<RemoteNews>> GetNewPublicationsAsync(List<string> existingNewsRemoteIds)
         {
             var result = new List<RemoteNews>();
-            await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
-            var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+            var options = new ConnectOptions()
             {
-                Headless = true
-            }) ;
-            var page = await browser.NewPageAsync();
-            var userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.0 Safari/537.36";
-            await page.SetUserAgentAsync(userAgent);
-            await page.GoToAsync(this.EntryPointUrl);
-            await page.ClickAsync("#aceptaCookies");
-            var noticeiro = await page.QuerySelectorAsync("#div_noticiero");
-            var noticias = await noticeiro.QuerySelectorAllAsync("li");
-            foreach (var item in noticias)
+                BrowserWSEndpoint = $"wss://chrome.browserless.io/"
+            };
+            var browser = await Puppeteer.ConnectAsync(options);
+            //await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
+            //var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+            //{
+            //    Headless = true
+            //});
+            try
             {
-                RemoteNews input = await GetInfoAsync(item);
-                if (existingNewsRemoteIds.Contains(input.RemoteId))
+
+                var page = await browser.NewPageAsync();
+                var userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.0 Safari/537.36";
+                await page.SetUserAgentAsync(userAgent);
+                await page.GoToAsync(this.EntryPointUrl);
+                await page.ClickAsync("#aceptaCookies");
+                var noticeiro = await page.QuerySelectorAsync("#div_noticiero");
+                var noticias = await noticeiro.QuerySelectorAllAsync("li");
+                foreach (var item in noticias)
                 {
-                    break;
+                    RemoteNews input = await GetInfoAsync(item);
+                    if (existingNewsRemoteIds.Contains(input.RemoteId))
+                    {
+                        break;
+                    }
+                    result.Add(input);
                 }
-                result.Add(input);
+                return result;
             }
-            await browser.CloseAsync();
-            return result;
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                if (browser != null)
+                {
+                    await browser.CloseAsync();
+                }
+            }
         }
 
         protected override async Task<DateTime> GetDateAsync(ElementHandle textHTML)
@@ -98,25 +131,45 @@ namespace PressCenter.Services.Sources.Policia
 
         protected override async Task<string> GetNewsContentAsync(ElementHandle textHTML)
         {
-            await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
-            var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+            var options = new ConnectOptions()
             {
-                Headless = false
-            });
-            var hrefString = await this.GetOriginalUrlAsync(textHTML);
-            var pageDetails = await browser.NewPageAsync();
-            await pageDetails.GoToAsync(hrefString);
-            var contentInfoDiv = await pageDetails.QuerySelectorAsync(".holdDetalle");
-            var contentInfoP = await contentInfoDiv.QuerySelectorAllAsync("p");
-            var sb = new StringBuilder();
-            for (int i = 0; i < contentInfoP.Length; i++)
+                BrowserWSEndpoint = $"wss://chrome.browserless.io/"
+            };
+            var browser = await Puppeteer.ConnectAsync(options);
+            //await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
+            //var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+            //{
+            //    Headless = true
+            //});
+            try
             {
-                var pInnerText = await contentInfoP[i].GetPropertyAsync("innerText");                
-                var pString = await pInnerText.JsonValueAsync<string>();
-                sb.AppendLine(pString);
+                var hrefString = await this.GetOriginalUrlAsync(textHTML);
+                var pageDetails = await browser.NewPageAsync();
+                var userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.0 Safari/537.36";
+                await pageDetails.SetUserAgentAsync(userAgent);
+                await pageDetails.GoToAsync(hrefString);
+                var contentInfoDiv = await pageDetails.QuerySelectorAsync(".holdDetalle");
+                var contentInfoP = await contentInfoDiv.QuerySelectorAllAsync("p");
+                var sb = new StringBuilder();
+                for (int i = 0; i < contentInfoP.Length; i++)
+                {
+                    var pInnerText = await contentInfoP[i].GetPropertyAsync("innerText");
+                    var pString = await pInnerText.JsonValueAsync<string>();
+                    sb.AppendLine(pString);
+                }
+                return sb.ToString();
             }
-            await browser.CloseAsync();
-            return sb.ToString();
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                if (browser != null)
+                {
+                    await browser.CloseAsync();
+                }
+            }
         }
 
         protected override async Task<string> GetOriginalUrlAsync(ElementHandle textHTML)

@@ -28,5 +28,17 @@
                 .To<T>()
                 .ToList();
         }
+
+        public List<string> GetAllNewsRemoteIdsForSource(int sourceId)
+        {
+            var source = this.sourceRepository.AllAsNoTracking().FirstOrDefault(x => x.Id == sourceId);
+            if (source == null)
+            {
+                return new List<string>();
+            }
+
+            var remoteIds = source.News.Select(x => x.RemoteId).ToList();
+            return remoteIds;
+        }
     }
 }

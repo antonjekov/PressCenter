@@ -20,32 +20,47 @@
                 string Description,
                 string EntryPointUrl,
                 string Url,
-                string DefaultImageUrl)>
+                string DefaultImageUrl,
+                bool PageIsDynamic)>
                     {
-                        // ("PressCenter.Services.Sources.Policia.PoliciaNacional",
-                        // "Policia Nacional",
-                        // "Policia Nacional España",
-                        // " ",
-                        // "https://www.policia.es/_es/comunicacion_salaprensa.php",
-                        // "https://www.policia.es/",
-                        // "/img/policiaNacional.png"),
-                        ("PressCenter.Services.Sources.Policia.GuardiaCivil",
+                         ("PressCenter.Services.Sources.Policia.PoliciaNacional",
+                         "Policia Nacional",
+                         "Policia Nacional España",
+                         " ",
+                         "https://www.policia.es/_es/comunicacion_salaprensa.php",
+                         "https://www.policia.es/",
+                         "/img/policiaNacional.png",
+                         true),
+
+                         ("PressCenter.Services.Sources.Policia.GuardiaCivil",
                         "Guardia Civil",
                         "Guardia Civil España",
                         " ",
                         "https://www.guardiacivil.es/es/prensa/noticias/index.html?pagina={0}&buscar=si",
                         "https://www.guardiacivil.es",
-                        "/img/guardiaCivil.png"),
-                        ("PressCenter.Services.Sources.Policia.DGT",
+                        "/img/guardiaCivil.png",
+                        false),
+
+                         ("PressCenter.Services.Sources.Policia.DGT",
                         "DGT",
                         "Dirección General de Tráfico",
                         " ",
                         "https://www.dgt.es/es/prensa/notas-de-prensa/{0}/",
                         "https://www.dgt.es",
-                        "/img/dgt.png"),
+                        "/img/dgt.png",
+                        false),
+
+                         ("PressCenter.Services.Sources.SpanishGovernment.MinisterioDeSanidad",
+                        "Ministerio de Sanidad",
+                        "Ministerio de Sanidad España",
+                        " ",
+                        "https://www.mscbs.gob.es/gabinete/notap_rss.do",
+                        "https://www.mscbs.gob.es/",
+                        "/img/ministerioDeSanidad.png",
+                        false),
                     };
 
-            foreach (var (typeName, shortName, name, description, entryPointUrl, url, defaultImageUrl) in sources)
+            foreach (var (typeName, shortName, name, description, entryPointUrl, url, defaultImageUrl, pageIsDynamic) in sources)
             {
                 if (!dbContext.Sources.Any(x => x.EntryPointUrl == entryPointUrl))
                 {
@@ -53,6 +68,7 @@
                         new Source
                         {
                             TypeName = typeName,
+                            PageIsDynamic = pageIsDynamic,
                             ShortName = shortName,
                             Name = name,
                             Description = description,

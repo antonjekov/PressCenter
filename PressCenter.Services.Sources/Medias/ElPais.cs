@@ -97,9 +97,14 @@ namespace PressCenter.Services.Sources.Medias
         protected override async Task<string> GetImageUrlAsync(ElementHandle textHTML)
         {
             var img = await textHTML.QuerySelectorAsync("img");
-            var imgUrlInfo = await img.GetPropertyAsync("src");
-            var imgUrl = await imgUrlInfo.JsonValueAsync<string>();
-            return imgUrl;
+            if (img!=null)
+            {
+                var imgUrlInfo = await img.GetPropertyAsync("src");
+                var imgUrl = await imgUrlInfo.JsonValueAsync<string>();
+                return imgUrl;
+            }
+            
+            return String.Empty;
         }
 
         protected override async Task<string> GetOriginalUrlAsync(ElementHandle textHTML)

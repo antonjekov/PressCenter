@@ -1,5 +1,6 @@
 ﻿namespace PressCenter.Services.Data
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -53,6 +54,15 @@
         {
             var remoteIds = this.newsRepository.AllAsNoTracking().Select(x => x.RemoteId).ToList();
             return remoteIds;
+        }
+
+        public IEnumerable<T> GetAllFromToday<T>()
+        {
+            return this.newsRepository.All()
+                .Where(x => x.CreatedOn >= DateTime.Today)
+                .OrderByDescending(x => x.CreatedOn)
+                .To<T>()
+                .ToList();
         }
     }
 }

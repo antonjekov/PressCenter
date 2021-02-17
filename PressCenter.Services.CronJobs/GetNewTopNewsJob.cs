@@ -9,10 +9,12 @@ namespace PressCenter.Services.CronJobs
     public class GetNewTopNewsJob : IGetNewTopNewsJob
     {
         private readonly ITopNewsService newsService;
+        private readonly ITopNewsSourceService topNewsSourceService;
 
-        public GetNewTopNewsJob(ITopNewsService newsService)
+        public GetNewTopNewsJob(ITopNewsService newsService, ITopNewsSourceService topNewsSourceService)
         {
             this.newsService = newsService;
+            this.topNewsSourceService = topNewsSourceService;
         }
 
         public async Task StartAsync(TopNewsSource source)
@@ -29,7 +31,7 @@ namespace PressCenter.Services.CronJobs
                 throw new Exception($"Unable to create {typeof(BaseTopNewsSource).Name} instance from \"{source.TypeName}\"!");
             }
 
-            var resourceIds = this.newsService.GetAllRemoteIds();
+            var resourceIds = this.topNewsSourceService.GetAllNewsRemoteIdsForSource(source.Id);
             var newPublications = await instance.GetNewPublicationsAsync(resourceIds);
             foreach (var publication in newPublications)
             {

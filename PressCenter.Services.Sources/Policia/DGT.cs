@@ -13,8 +13,11 @@ namespace PressCenter.Services.Sources.Policia
 {
     public class DGT : BaseSource<IElement>
     {
+        private readonly IBrowsingContext context;
+
         public DGT(Source source) : base(source)
         {
+            this.context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
         }
         public override async Task<IEnumerable<RemoteNews>> GetAllPublicationsAsync()
         {
@@ -27,7 +30,7 @@ namespace PressCenter.Services.Sources.Policia
                 {
                     url += $"index-paginacion-{i.ToString().PadLeft(3, '0')}.shtml";
                 }
-                var document = await this.Context.OpenAsync(url);
+                var document = await this.context.OpenAsync(url);
                 if (document == null)
                 {
                     break;
@@ -58,7 +61,7 @@ namespace PressCenter.Services.Sources.Policia
                 {
                     url += $"index-paginacion-{i.ToString().PadLeft(3, '0')}.shtml";
                 }
-                var document = await this.Context.OpenAsync(url);
+                var document = await this.context.OpenAsync(url);
                 if (document == null)
                 {
                     break;
@@ -113,7 +116,7 @@ namespace PressCenter.Services.Sources.Policia
         {
             //var newsContent = textHTML.QuerySelector("p").TextContent;
             //return newsContent;
-            var pageFullNews = await this.Context.OpenAsync(await this.GetOriginalUrlAsync(textHTML));
+            var pageFullNews = await this.context.OpenAsync(await this.GetOriginalUrlAsync(textHTML));
             var newsContentParagraphs = pageFullNews.QuerySelector("section.notap").QuerySelectorAll("p");
             newsContentParagraphs[0].Remove();
             var sb = new StringBuilder();

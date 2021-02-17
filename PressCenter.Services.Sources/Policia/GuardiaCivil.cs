@@ -13,8 +13,11 @@ namespace PressCenter.Services.Sources.Policia
 {
     public class GuardiaCivil : BaseSource<IElement>
     {
+        private readonly IBrowsingContext context;
+
         public GuardiaCivil(Source source) : base(source)
         {
+            this.context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
         }
         public override async Task<IEnumerable<RemoteNews>> GetAllPublicationsAsync()
         {
@@ -22,7 +25,7 @@ namespace PressCenter.Services.Sources.Policia
             for (int i = 1; i < 10; i++)
             {
                 var url = String.Format(this.EntryPointUrl, i);
-                var document = await this.Context.OpenAsync(url);
+                var document = await this.context.OpenAsync(url);
                 if (document == null)
                 {
                     break;
@@ -48,7 +51,7 @@ namespace PressCenter.Services.Sources.Policia
                     break;
                 }
                 var url = String.Format(this.EntryPointUrl, i);
-                var document = await this.Context.OpenAsync(url);
+                var document = await this.context.OpenAsync(url);
                 if (document == null)
                 {
                     break;
@@ -111,7 +114,7 @@ namespace PressCenter.Services.Sources.Policia
         protected override async Task<string> GetNewsContentAsync(IElement textHTML)
         {
             // to get full text
-            var pageFullNews =await this.Context.OpenAsync(await this.GetOriginalUrlAsync(textHTML));
+            var pageFullNews =await this.context.OpenAsync(await this.GetOriginalUrlAsync(textHTML));
             var newsContentParagraphs = pageFullNews.QuerySelector("div.text-noticia");
             newsContentParagraphs.QuerySelector("p.titular-noticia").Remove();
             var scripts = newsContentParagraphs.QuerySelectorAll("script");

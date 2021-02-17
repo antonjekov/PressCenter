@@ -10,6 +10,7 @@ using PressCenter.Data.Repositories;
 using PressCenter.Services.CronJobs;
 using PressCenter.Services.Data;
 using PressCenter.Services.Mapping;
+using PressCenter.Services.RssAtom;
 using PressCenter.Web.ViewModels;
 using System;
 using System.Linq;
@@ -42,6 +43,7 @@ namespace AzurCronFunctions
             builder.Services.AddTransient<ITopNewsSourceService, TopNewsSourceService>();
             builder.Services.AddTransient<IGetNewPublicationsJob, GetNewPublicationsJob>();
             builder.Services.AddTransient<IGetNewTopNewsJob, GetNewTopNewsJob>();
+            builder.Services.AddTransient<IRssAtomService, RssAtomService>();
             
             // Set AutoMapper
             AutoMapperConfig.RegisterMappings(typeof(ErrorViewModel).GetTypeInfo().Assembly);

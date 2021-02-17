@@ -21,11 +21,11 @@
 
         public IActionResult Index(int id = 1)
         {
-            int itemsPerPage = 10;
+            int itemsPerPage = 5;
             var allNewsThisPage = this.newsService.GetAll<NewsViewModel>(id, itemsPerPage);
             var allNewsCount = this.newsService.Count();
             var newsTodayCount = this.newsService.NewsTodayCount();
-            var topNews = this.topNewsService.GetAll<TopNewsViewModel>();
+            var topNews = this.topNewsService.GetAllFromToday<TopNewsViewModel>();
             var allNewsPagination = new NewsViewModelPagination()
             {
                 ItemsCount = allNewsCount,

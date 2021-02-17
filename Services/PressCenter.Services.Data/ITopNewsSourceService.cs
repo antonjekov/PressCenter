@@ -7,5 +7,7 @@
     public interface ITopNewsSourceService
     {
         IEnumerable<TopNewsSource> GetAll();
+
+        List<string> GetAllNewsRemoteIdsForSource(int sourceId);
     }
 }

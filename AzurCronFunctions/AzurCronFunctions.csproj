@@ -24,6 +24,7 @@
     <ProjectReference Include="..\Data\PressCenter.Data\PressCenter.Data.csproj" />
     <ProjectReference Include="..\PressCenter.Services.CronJobs\PressCenter.Services.CronJobs.csproj" />
     <ProjectReference Include="..\Services\PressCenter.Services.Data\PressCenter.Services.Data.csproj" />
+    <ProjectReference Include="..\Services\PressCenter.Services.RssAtom\PressCenter.Services.RssAtom.csproj" />
     <ProjectReference Include="..\Web\PressCenter.Web.ViewModels\PressCenter.Web.ViewModels.csproj" />
   </ItemGroup>
 </Project>
