@@ -13,6 +13,8 @@
 
         IEnumerable<T> GetAll<T>();
 
+        IEnumerable<T> GetAllFromToday<T>();
+
         List<string> GetAllRemoteIds();
 
         int Count();

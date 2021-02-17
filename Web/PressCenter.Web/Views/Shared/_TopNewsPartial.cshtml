@@ -4,7 +4,9 @@
 
 @foreach (var topNew in Model)
 {
-    <div class="row">
+<div class="row">
+    @if (topNew.ImageUrl != String.Empty)
+    {
         <div class="col-md-4">
             <img class="img-fluid img-max mr-3" src=@topNew.ImageUrl alt="@topNew.Source.Name">
         </div>
@@ -15,7 +17,19 @@
                 </a>
             </p>
         </div>
-    </div>
+    }
+    else
+    {
+        <div class="col-md-12">
+            <p>
+                <a class="text-dark" href="@topNew.OriginalUrl">
+                    @topNew.Title
+                </a>
+            </p>
+        </div>
+    }
+
+</div>
     <p class="text-right">
         <a href=@topNew.OriginalUrl>@topNew.Source.Name</a>
         <span class="text-secondary">

@@ -34,41 +34,92 @@ namespace AzurCronFunctions
             this.topNewsSourceService = topNewsSourceService;
             this.newPublicationsJob = newPublicationsJob;
             this.getNewTopNewsJob = getNewTopNewsJob;
-        }        
+        }
 
         [FunctionName("DeleteOldNews")]
         public async Task Run([TimerTrigger("0 0 3 * * *")] TimerInfo myTimer, ILogger log)
         {
             var newsToDelete = await azureDataContext.News.Where(x => x.Date <= DateTime.Today.AddDays(-30)).ToListAsync();
+            var topNewsToDelete = await azureDataContext.TopNews.Where(x => x.CreatedOn <= DateTime.Today.AddDays(-3)).ToListAsync();
             foreach (var item in newsToDelete)
             {
                 azureDataContext.News.Remove(item);
-                await azureDataContext.SaveChangesAsync();
             }
+            foreach (var item in topNewsToDelete)
+            {
+                azureDataContext.TopNews.Remove(item);
+            }
+            await azureDataContext.SaveChangesAsync();
             log.LogInformation($"Azure DeleteOldNews function executed at: {DateTime.Now}");
         }
 
-        // "*/30 * * * * *" - 30 seconds; "0 0 * * * *" - 1 hour; "0 */30 * * * *" - 30 minutes
+        // "*/30 * * * * *" - 30 seconds; "0 0 * * * *" - 1 hour; "0 */30 * * * *" - 30 minutes; 
+        // "0 0 8-18 * * *" every hour between 8-18
         [FunctionName("SeedNews")]
-        public async Task SeedNews([TimerTrigger("0 0 * * * *")] TimerInfo myTimer, ILogger log)
+        public async Task SeedNews([TimerTrigger("0 0 8-18 * * *")] TimerInfo myTimer, ILogger log)
         {
             var sources = this.sourceService.GetAll();
             foreach (var item in sources)
             {
-                await newPublicationsJob.StartAsync(item);
-                log.LogInformation($"{item.Name} seed processed.");
+                try
+                {
+                    await newPublicationsJob.StartAsync(item);
+                    log.LogInformation($"{item.Name} seed processed.");
+                }
+                catch (Exception)
+                {
+                    log.LogInformation($"{item.Name} seed failed.");
+                    continue;
+                }
             }
         }
 
         [FunctionName("SeedTopNews")]
-        public async Task SeedTopNews([TimerTrigger("0 */45 * * * *")] TimerInfo myTimer, ILogger log)
+        public async Task SeedTopNews([TimerTrigger("0 */30 6-22 * * *")] TimerInfo myTimer, ILogger log)
         {
             var sources = this.topNewsSourceService.GetAll();
             foreach (var item in sources)
             {
-                await getNewTopNewsJob.StartAsync(item);
-                log.LogInformation($"{item.Name} seed processed.");
+                try
+                {
+                    await getNewTopNewsJob.StartAsync(item);
+                    log.LogInformation($"{item.Name} seed processed.");
+                }
+                catch (Exception)
+                {
+                    log.LogInformation($"{item.Name} seed failed.");
+                    continue;
+                }
             }
+        }
+
+        [FunctionName("ExecuteSeedNews")]
+        public async Task<IActionResult> GetAllNewsAsync(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
+            ILogger log)
+        {
+            var sources = this.sourceService.GetAll();
+            foreach (var item in sources)
+            {
+                if (item.ShortName == "Policia Nacional")
+                {
+                    continue;
+                }
+                await newPublicationsJob.StartAsync(item);
+                log.LogInformation($"{item.Name} seed processed.");
+                //try
+                //{
+                //await newPublicationsJob.StartAsync(item);
+                //log.LogInformation($"{item.Name} seed processed.");
+                //}
+                //catch (Exception)
+                //{
+                //    log.LogInformation($"{item.Name} seed failed.");
+                //    continue;
+                //}
+            }
+            var news = newsService.GetAll<NewsViewModel>();
+            return new OkObjectResult(news.First());
         }
 
         [FunctionName("GetAllNews")]
@@ -90,5 +141,7 @@ namespace AzurCronFunctions
             var allSources = sourceService.GetAll();
             return new OkObjectResult(allSources);
         }
+
+
     }
 }

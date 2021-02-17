@@ -13,6 +13,8 @@
 
         public string TypeName { get; set; }
 
+        public bool PageIsDynamic { get; set; }
+
         public string ShortName { get; set; }
 
         public string Name { get; set; }
