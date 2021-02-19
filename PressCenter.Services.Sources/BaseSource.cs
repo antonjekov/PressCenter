@@ -5,6 +5,8 @@
     using System.Threading.Tasks;
     using AngleSharp;
     using PressCenter.Data.Models;
+    using PressCenter.Services.RssAtom;
+
     public abstract class BaseSource<T>
     {
         protected BaseSource(Source source)

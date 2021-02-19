@@ -17,6 +17,8 @@
 
         public string Url { get; set; }
 
+        public bool PageIsDynamic { get; set; }
+
         public virtual ICollection<TopNews> TopNews { get; set; }
     }
 }

@@ -96,5 +96,11 @@
             var remoteIds = this.newsRepository.AllAsNoTracking().Select(x => x.RemoteId).ToList();
             return remoteIds;
         }
+
+        public List<string> GetAllRemoteIdsBySourceId(int id)
+        {
+            var remoteIds = this.newsRepository.AllAsNoTracking().Where(x => x.SourceId == id).Select(x => x.RemoteId).ToList();
+            return remoteIds;
+        }
     }
 }
