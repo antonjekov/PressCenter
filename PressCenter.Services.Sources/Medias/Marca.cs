@@ -1,78 +1,32 @@
-﻿using PressCenter.Data.Models;
-using PuppeteerSharp;
+﻿using AngleSharp;
+using AngleSharp.Dom;
+using AngleSharp.Html.Dom;
+using PressCenter.Data.Models;
+using PressCenter.Services.RssAtom;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace PressCenter.Services.Sources.Medias
 {
-    public class Marca : BaseTopNewsSource
+    public class Marca : BaseTopNewsSource<IElement>
     {
-        public Marca(TopNewsSource source) : base(source)
-        {
-        }
-        public override async Task<IEnumerable<TopNews>> GetAllPublicationsAsync()
-        {
-            var result = new List<TopNews>();
-            //await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
-            //var browser = await Puppeteer.LaunchAsync(new LaunchOptions
-            //{
-            //    Headless = true
-            //});
-            var options = new ConnectOptions()
-            {
-                BrowserWSEndpoint = $"wss://chrome.browserless.io/"
-            };
-            var browser = await Puppeteer.ConnectAsync(options);
-            try
-            {
-                var page = await browser.NewPageAsync();
-                var userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.0 Safari/537.36";
-                await page.SetUserAgentAsync(userAgent);
-                await page.GoToAsync(this.Url);
-                var portada = await page.QuerySelectorAsync("#portada");
-                var sections = await portada.QuerySelectorAllAsync("section");
-                var topNews = await sections[1].QuerySelectorAsync("li");
-                TopNews input = await GetInfoAsync(topNews);
-                result.Add(input);
-                return result;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            finally
-            {
-                if (browser != null)
-                {
-                    await browser.CloseAsync();
-                }
-            }
-        }
+        private readonly IBrowsingContext context;
 
+        public Marca(TopNewsSource source, IRssAtomService rssAtomService) : base(source, rssAtomService)
+        {
+            this.context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
+        }
         public override async Task<IEnumerable<TopNews>> GetNewPublicationsAsync(List<string> existingNewsRemoteIds)
         {
             var result = new List<TopNews>();
-            //await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
-            //var browser = await Puppeteer.LaunchAsync(new LaunchOptions
-            //{
-            //    Headless = true
-            //});
-            var options = new ConnectOptions()
-            {
-                BrowserWSEndpoint = $"wss://chrome.browserless.io/"
-            };
-            var browser = await Puppeteer.ConnectAsync(options);
             try
             {
-                var page = await browser.NewPageAsync();
-                var userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.0 Safari/537.36";
-                await page.SetUserAgentAsync(userAgent);
-                await page.GoToAsync(this.Url);
-                var portada = await page.QuerySelectorAsync("#portada");
-                var sections = await portada.QuerySelectorAllAsync("section");
-                var topNews = await sections[1].QuerySelectorAsync("li");
+                var page = await this.context.OpenAsync(this.Url);
+                var portada = page.QuerySelector("#portada");
+                var sections = portada.QuerySelectorAll("section");
+                var topNews = sections[1].QuerySelector("li");
                 TopNews input = await GetInfoAsync(topNews);
                 if (existingNewsRemoteIds.Contains(input.RemoteId))
                 {
@@ -88,38 +42,28 @@ namespace PressCenter.Services.Sources.Medias
             {
                 throw;
             }
-            finally
-            {
-                if (browser != null)
-                {
-                    await browser.CloseAsync();
-                }
-            }
         }
 
-        protected override async Task<string> GetImageUrlAsync(ElementHandle textHTML)
+        protected override async Task<string> GetImageUrlAsync(IElement textHTML)
         {
-            var figure = await textHTML.QuerySelectorAsync("figure");
+            var figure = textHTML.QuerySelector("figure");
             string imgUrl = String.Empty;
             if (figure != null)
             {
-                var img = await figure.QuerySelectorAsync("img");
-                var imgUrlInfo = await img.GetPropertyAsync("src");
-                imgUrl = await imgUrlInfo.JsonValueAsync<string>();
+                var img = figure.QuerySelector("img");
+                imgUrl = img.GetAttribute("src");
             }
             return imgUrl;
         }
 
-        protected override async Task<string> GetOriginalUrlAsync(ElementHandle textHTML)
+        protected override async Task<string> GetOriginalUrlAsync(IElement textHTML)
         {
-            var figure = await textHTML.QuerySelectorAsync("figure");
-            var a = await figure.QuerySelectorAsync("a");
-            var imgUrlInfo = await a.GetPropertyAsync("href");
-            var url = await imgUrlInfo.JsonValueAsync<string>();
+            var figure = textHTML.QuerySelector("figure");
+            var url = figure.QuerySelectorAll("a").OfType<IHtmlAnchorElement>().FirstOrDefault().Href;
             return url;
         }
 
-        protected override async Task<string> GetRemoteIdAsync(ElementHandle textHTML)
+        protected override async Task<string> GetRemoteIdAsync(IElement textHTML)
         {
             var url = await this.GetOriginalUrlAsync(textHTML);
             var idInfo = url.Split(".html")[0];
@@ -127,11 +71,10 @@ namespace PressCenter.Services.Sources.Medias
             return id;
         }
 
-        protected override async Task<string> GetTitleAsync(ElementHandle textHTML)
+        protected override async Task<string> GetTitleAsync(IElement textHTML)
         {
-            var titleElement = await textHTML.QuerySelectorAsync("h2");
-            var titleInfo = await titleElement.GetPropertyAsync("innerText");
-            var title = await titleInfo.JsonValueAsync<string>();
+            var titleElement = textHTML.QuerySelector("h2");
+            var title = titleElement.TextContent;
             return title;
         }
     }

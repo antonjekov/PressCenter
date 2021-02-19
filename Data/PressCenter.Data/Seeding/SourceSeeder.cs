@@ -58,6 +58,15 @@
                         "https://www.mscbs.gob.es/",
                         "/img/ministerioDeSanidad.png",
                         false),
+
+                         ("PressCenter.Services.Sources.Catalunya.GeneralitatDeCatalunya",
+                         "Generalitat de Catalunya",
+                         "Generalitat de Catalunya",
+                         " ",
+                         "http://web.gencat.cat/es/actualitat/rss.html",
+                         "http://web.gencat.cat/",
+                         "/img/generalitatDeCatalunya.png",
+                         false),
                     };
 
             foreach (var (typeName, shortName, name, description, entryPointUrl, url, defaultImageUrl, pageIsDynamic) in sources)

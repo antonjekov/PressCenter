@@ -13,13 +13,14 @@
         {
             var sources =
                 new
-                List<(string TypeName, string Name, string Url)>
+                List<(string TypeName, string Name, string Url, bool PageIsDynamic)>
                     {
-                        ("PressCenter.Services.Sources.Medias.Marca", "marca.com", "https://www.marca.com/"),
-                        ("PressCenter.Services.Sources.Medias.ElPais", "elpais.com", "https://elpais.com/"),
+                        ("PressCenter.Services.Sources.Medias.Marca", "marca.com", "https://www.marca.com/", false),
+                        ("PressCenter.Services.Sources.Medias.ElPais", "elpais.com", "https://elpais.com/", false),
+                        ("PressCenter.Services.Sources.Medias.LaVanguardia", "lavanguardia.com", "https://www.lavanguardia.com/newsml/home.xml", false),
                     };
 
-            foreach (var (typeName, name, url) in sources)
+            foreach (var (typeName, name, url, pageIsDynamic) in sources)
             {
                 if (!dbContext.TopNewsSources.Any(x => x.Url == url))
                 {
@@ -29,6 +30,7 @@
                             TypeName = typeName,
                             Name = name,
                             Url = url,
+                            PageIsDynamic = pageIsDynamic,
                         });
                 }
             }

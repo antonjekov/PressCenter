@@ -17,6 +17,8 @@
 
         List<string> GetAllRemoteIds();
 
+        List<string> GetAllRemoteIdsBySourceId(int id);
+
         int Count();
     }
 }

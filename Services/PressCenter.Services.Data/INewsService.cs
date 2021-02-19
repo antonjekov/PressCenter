@@ -18,6 +18,8 @@
 
         List<string> GetAllRemoteIds();
 
+        List<string> GetAllRemoteIdsBySourceId(int id);
+
         IEnumerable<T> GetAll<T>(int page, int itemsPerPage);
 
         int Count();

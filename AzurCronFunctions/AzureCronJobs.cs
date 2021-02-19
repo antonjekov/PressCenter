@@ -122,6 +122,29 @@ namespace AzurCronFunctions
             return new OkObjectResult(news.First());
         }
 
+        [FunctionName("ExecuteSeedTopNews")]
+        public async Task<IActionResult> GetAllTopNewsAsync(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
+            ILogger log)
+        {
+            var sources = this.topNewsSourceService.GetAll();
+            foreach (var item in sources)
+            {
+                try
+                {
+                    await getNewTopNewsJob.StartAsync(item);
+                    log.LogInformation($"{item.Name} seed processed.");
+                }
+                catch (Exception)
+                {
+                    log.LogInformation($"{item.Name} seed failed.");
+                    continue;
+                }
+            }
+            var news = newsService.GetAll<NewsViewModel>();
+            return new OkObjectResult(news.First());
+        }
+
         [FunctionName("GetAllNews")]
         public IActionResult GetAllNews(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,

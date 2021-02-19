@@ -44,7 +44,7 @@ namespace PressCenter.Services.CronJobs
                 {
                     throw new Exception($"Unable to create {typeof(BaseSource<ElementHandle>).Name} instance from \"{source.TypeName}\"!");
                 }
-                var resourceIds = this.sourceService.GetAllNewsRemoteIdsForSource(source.Id);
+                var resourceIds = this.newsService.GetAllRemoteIdsBySourceId(source.Id);
                 var newPublications = await instance.GetNewPublicationsAsync(resourceIds);
                 foreach (var publication in newPublications)
                 {
@@ -58,7 +58,7 @@ namespace PressCenter.Services.CronJobs
                 {
                     throw new Exception($"Unable to create {typeof(BaseSource<IElement>).Name} instance from \"{source.TypeName}\"!");
                 }
-                var resourceIds = this.sourceService.GetAllNewsRemoteIdsForSource(source.Id);
+                var resourceIds = this.newsService.GetAllRemoteIdsBySourceId(source.Id);
                 var newPublications = await instance.GetNewPublicationsAsync(resourceIds);
                 foreach (var publication in newPublications)
                 {

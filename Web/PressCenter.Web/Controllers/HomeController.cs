@@ -1,7 +1,7 @@
 ﻿namespace PressCenter.Web.Controllers
 {
     using System.Diagnostics;
-
+    using System.Linq;
     using Microsoft.AspNetCore.Mvc;
     using PressCenter.Services.Data;
     using PressCenter.Web.ViewModels;
@@ -25,7 +25,8 @@
             var allNewsThisPage = this.newsService.GetAll<NewsViewModel>(id, itemsPerPage);
             var allNewsCount = this.newsService.Count();
             var newsTodayCount = this.newsService.NewsTodayCount();
-            var topNews = this.topNewsService.GetAllFromToday<TopNewsViewModel>();
+            var topNewsToday = this.topNewsService.GetAllFromToday<TopNewsViewModel>();
+            var topNews = topNewsToday.GroupBy(x => x.SourceId).Select(g => g.ToList().Take(2)).SelectMany(x => x).ToList();
             var allNewsPagination = new NewsViewModelPagination()
             {
                 ItemsCount = allNewsCount,

@@ -1,5 +1,6 @@
 ﻿namespace PressCenter.Web.Controllers
 {
+    using System.Linq;
     using System.Threading.Tasks;
 
     using Microsoft.AspNetCore.Mvc;
@@ -28,7 +29,7 @@
             var sources = this.sourceService.GetAll();
             foreach (var source in sources)
             {
-                await new GetNewPublicationsJob(this.newsService).StartAsync(source);
+                await new GetNewPublicationsJob(this.newsService, this.sourceService).StartAsync(source);
             }
 
             return this.Json("ok");
@@ -37,7 +38,8 @@
         public IActionResult Details(int id)
         {
             var news = this.newsService.GetById<NewsViewModel>(id);
-            var topNews = this.topNewsService.GetAll<TopNewsViewModel>();
+            var topNewsToday = this.topNewsService.GetAllFromToday<TopNewsViewModel>();
+            var topNews = topNewsToday.GroupBy(x => x.SourceId).Select(g => g.ToList().Take(2)).SelectMany(x => x).ToList();
             var model = new NewsDetailsViewModel()
             {
                 News = news,
