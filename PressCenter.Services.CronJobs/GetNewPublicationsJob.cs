@@ -3,6 +3,7 @@
 using PressCenter.Data.Common.Repositories;
 using PressCenter.Data.Models;
 using PressCenter.Services.Data;
+using PressCenter.Services.RssAtom;
 using PressCenter.Services.Sources;
 using PuppeteerSharp;
 using System;
@@ -16,11 +17,13 @@ namespace PressCenter.Services.CronJobs
     {
         private readonly INewsService newsService;
         private readonly ISourceService sourceService;
+        private readonly IRssAtomService rssAtomService;
 
-        public GetNewPublicationsJob(INewsService newsService, ISourceService sourceService)
+        public GetNewPublicationsJob(INewsService newsService, ISourceService sourceService, IRssAtomService rssAtomService)
         {
             this.newsService = newsService;
             this.sourceService = sourceService;
+            this.rssAtomService = rssAtomService;
         }
 
         public async Task StartAsync(Source source)
@@ -39,7 +42,7 @@ namespace PressCenter.Services.CronJobs
             
             if (source.PageIsDynamic)
             {
-                var instance = (BaseSource<ElementHandle>)Activator.CreateInstance(type, source);
+                var instance = (BaseSource<ElementHandle>)Activator.CreateInstance(type, source, rssAtomService);
                 if (instance == null)
                 {
                     throw new Exception($"Unable to create {typeof(BaseSource<ElementHandle>).Name} instance from \"{source.TypeName}\"!");
@@ -53,7 +56,7 @@ namespace PressCenter.Services.CronJobs
             }
             else
             {
-                var instance = (BaseSource<IElement>)Activator.CreateInstance(type, source);
+                var instance = (BaseSource<IElement>)Activator.CreateInstance(type, source, rssAtomService);
                 if (instance == null)
                 {
                     throw new Exception($"Unable to create {typeof(BaseSource<IElement>).Name} instance from \"{source.TypeName}\"!");

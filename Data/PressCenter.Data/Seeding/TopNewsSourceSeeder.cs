@@ -18,6 +18,7 @@
                         ("PressCenter.Services.Sources.Medias.Marca", "marca.com", "https://www.marca.com/", false),
                         ("PressCenter.Services.Sources.Medias.ElPais", "elpais.com", "https://elpais.com/", false),
                         ("PressCenter.Services.Sources.Medias.LaVanguardia", "lavanguardia.com", "https://www.lavanguardia.com/newsml/home.xml", false),
+                        ("PressCenter.Services.Sources.Medias.ElMundo", "elmundo.com", "https://e00-elmundo.uecdn.es/elmundo/rss/portada.xml", false),
                     };
 
             foreach (var (typeName, name, url, pageIsDynamic) in sources)

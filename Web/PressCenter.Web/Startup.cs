@@ -23,6 +23,7 @@
     using PressCenter.Services.Data;
     using PressCenter.Services.Mapping;
     using PressCenter.Services.Messaging;
+    using PressCenter.Services.RssAtom;
     using PressCenter.Web.ViewModels;
 
     public class Startup
@@ -71,6 +72,7 @@
             services.AddTransient<INewsService, NewsService>();
             services.AddTransient<ITopNewsService, TopNewsService>();
             services.AddTransient<ISourceService, SourceService>();
+            services.AddTransient<IRssAtomService, RssAtomService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

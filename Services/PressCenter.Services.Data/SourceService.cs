@@ -40,5 +40,7 @@
             var remoteIds = source.News.Select(x => x.RemoteId).ToList();
             return remoteIds;
         }
+
+        public int GetCount() => this.sourceRepository.AllAsNoTracking().Count();
     }
 }

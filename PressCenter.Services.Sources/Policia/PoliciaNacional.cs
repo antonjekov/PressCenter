@@ -1,4 +1,5 @@
 ﻿using PressCenter.Data.Models;
+using PressCenter.Services.RssAtom;
 using PuppeteerSharp;
 using System;
 using System.Collections.Generic;
@@ -10,51 +11,11 @@ namespace PressCenter.Services.Sources.Policia
 {
     public class PoliciaNacional : BaseSource<ElementHandle>
     {
-        public PoliciaNacional(Source source) : base(source)
-        {
-        }
+        private readonly IRssAtomService rssAtomService;
 
-        public override async Task<IEnumerable<RemoteNews>> GetAllPublicationsAsync()
+        public PoliciaNacional(Source source, IRssAtomService rssAtomService) : base(source, rssAtomService)
         {
-            var result = new List<RemoteNews>();
-            //await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
-            //var browser = await Puppeteer.LaunchAsync(new LaunchOptions
-            //{
-            //    Headless = true
-            //});
-            var options = new ConnectOptions()
-            {
-                BrowserWSEndpoint = $"wss://chrome.browserless.io/"
-            };
-            var browser = await Puppeteer.ConnectAsync(options);
-            try
-            {
-                var page = await browser.NewPageAsync();
-                var userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.0 Safari/537.36";
-                await page.SetUserAgentAsync(userAgent);
-                await page.GoToAsync(this.EntryPointUrl);
-                await page.ClickAsync("#aceptaCookies");
-                await page.WaitForNavigationAsync();
-                var noticeiro = await page.QuerySelectorAsync("#div_noticiero");
-                var noticias = await noticeiro.QuerySelectorAllAsync("li");
-                foreach (var item in noticias)
-                {
-                    RemoteNews input = await GetInfoAsync(item);
-                    result.Add(input);
-                }
-                return result;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            finally
-            {
-                if (browser != null)
-                {
-                    await browser.CloseAsync();
-                }
-            }
+            this.rssAtomService = rssAtomService;
         }
 
         public override async Task<IEnumerable<RemoteNews>> GetNewPublicationsAsync(List<string> existingNewsRemoteIds)

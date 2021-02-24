@@ -3,7 +3,6 @@
     this.ViewData["Title"] = "Noticias de España sin editar";
 }
 <div class="container">
-    
     <div class="row">
         <div class=" col-md-8">
             <h4 class="text-secondary">Noticias sin editar @Model.ItemsCount (hoy: @Model.ItemsTodayCount)</h4>
@@ -33,14 +32,14 @@
                             <i class="far fa-clock"> @news.ShortDate</i>
                         </span>
                     </p>
-                </div>                
+                </div>
                 <hr />
             }
             <partial name="_PaginationPartial" model="@Model" />
         </div>
         <div class="col-md-4">
-            <partial name="_TopNewsPartial" model="@Model.TopNews"/>
+            <partial name="_TopNewsPartial" model="@Model.TopNews" />
         </div>
-    </div>    
+    </div>
 </div>
 

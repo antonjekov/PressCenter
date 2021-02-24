@@ -10,6 +10,8 @@
 
         IEnumerable<T> GetAll<T>();
 
+        int GetCount();
+
         List<string> GetAllNewsRemoteIdsForSource(int sourceId);
     }
 }
