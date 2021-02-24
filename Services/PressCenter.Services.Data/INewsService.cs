@@ -14,6 +14,8 @@
 
         IEnumerable<T> GetAll<T>();
 
+        IEnumerable<T> GetLastN<T>(int n);
+
         IEnumerable<News> GetAll();
 
         List<string> GetAllRemoteIds();
@@ -22,9 +24,15 @@
 
         IEnumerable<T> GetAll<T>(int page, int itemsPerPage);
 
+        IEnumerable<T> GetAll<T>(int page, int itemsPerPage, List<int> sourceIds);
+
         int Count();
 
+        int Count(List<int> sourceIds);
+
         int NewsTodayCount();
+
+        int NewsTodayCount(List<int> sourceIds);
 
         Task DeleteAsync(int id);
     }

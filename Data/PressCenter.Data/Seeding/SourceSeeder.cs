@@ -67,6 +67,15 @@
                          "http://web.gencat.cat/",
                          "/img/generalitatDeCatalunya.png",
                          false),
+
+                         ("PressCenter.Services.Sources.Catalunya.MossosEsquadra",
+                         "Mossos d'Esquadra",
+                         "Mossos d'Esquadra",
+                         " ",
+                         "https://mossos.gencat.cat/ca/comunicacio/noticies/index.html",
+                         "https://mossos.gencat.cat/",
+                         "/img/mossosEsquadra.png",
+                         false),
                     };
 
             foreach (var (typeName, shortName, name, description, entryPointUrl, url, defaultImageUrl, pageIsDynamic) in sources)

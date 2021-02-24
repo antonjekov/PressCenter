@@ -13,38 +13,19 @@ namespace PressCenter.Services.Sources.SpanishGovernment
     public class MinisterioDeSanidad : BaseSource<IElement>
     {
         private readonly IBrowsingContext context;
-        //private readonly IRssAtomService rssAtomService;
+        private readonly IRssAtomService rssAtomService;
 
-        public MinisterioDeSanidad(Source source /*, IRssAtomService rssAtomService*/) : base(source)
+        public MinisterioDeSanidad(Source source, IRssAtomService rssAtomService) : base(source, rssAtomService)
         {
             this.context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
-            //this.rssAtomService = rssAtomService;
-        }
-
-        public override async Task<IEnumerable<RemoteNews>> GetAllPublicationsAsync()
-        {
-            var rssAtomService = new RssAtomService();
-            var result = new List<RemoteNews>();
-            var items = await rssAtomService.ReadAsync<News>(this.EntryPointUrl);
-            foreach (var news in items)
-            {
-                var document = await this.context.OpenAsync(news.OriginalUrl);
-                var element = document.QuerySelector("section.informacion");
-                var remoteId = news.OriginalUrl.Split("id=").LastOrDefault();
-                RemoteNews input =await GetInfoAsync(element);
-                input.Title = news.Title;
-                input.OriginalUrl = news.OriginalUrl;
-                input.Date = news.Date;
-                input.RemoteId = remoteId;
-            }
-            return result;
+            this.rssAtomService = rssAtomService;
         }
 
         public override async Task<IEnumerable<RemoteNews>> GetNewPublicationsAsync(List<string> existingNewsRemoteIds)
         {
             var rssAtomService = new RssAtomService();
             var result = new List<RemoteNews>();
-            var items = await rssAtomService.Read1Async(this.EntryPointUrl);
+            var items = await rssAtomService.ReadAsync(this.EntryPointUrl);
             foreach (var news in items)
             {
                 var document = await this.context.OpenAsync(news.Link);

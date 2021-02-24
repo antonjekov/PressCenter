@@ -7,8 +7,6 @@ namespace PressCenter.Services.RssAtom
 {
     public interface IRssAtomService
     {
-        Task<IEnumerable<T>> ReadAsync<T>(string url) where T : INews, new();
-
-        Task<IEnumerable<FeedItem>> Read1Async(string url);
+        Task<IEnumerable<FeedItem>> ReadAsync(string url);
     }
 }

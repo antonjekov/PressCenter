@@ -2,6 +2,7 @@
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using PressCenter.Data.Models;
+using PressCenter.Services.RssAtom;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -14,37 +15,13 @@ namespace PressCenter.Services.Sources.Policia
     public class DGT : BaseSource<IElement>
     {
         private readonly IBrowsingContext context;
+        private readonly IRssAtomService rssAtomService;
 
-        public DGT(Source source) : base(source)
+        public DGT(Source source, IRssAtomService rssAtomService) : base(source, rssAtomService)
         {
             this.context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
+            this.rssAtomService = rssAtomService;
         }
-        public override async Task<IEnumerable<RemoteNews>> GetAllPublicationsAsync()
-        {
-            var result = new List<RemoteNews>();
-            var year = DateTime.Now.Year;
-            for (int i = 1; i < 10; i++)
-            {
-                var url = String.Format(this.EntryPointUrl, year);
-                if (i > 1)
-                {
-                    url += $"index-paginacion-{i.ToString().PadLeft(3, '0')}.shtml";
-                }
-                var document = await this.context.OpenAsync(url);
-                if (document == null)
-                {
-                    break;
-                }
-                var elements = document.QuerySelector("section.stcols").QuerySelectorAll("article");
-                foreach (var item in elements)
-                {
-                    RemoteNews input = await GetInfoAsync(item);
-                    result.Add(input);
-                }
-            }
-            return result;
-        }
-
         public override async Task<IEnumerable<RemoteNews>> GetNewPublicationsAsync(List<string> existingNewsRemoteIds)
         {
             var result = new List<RemoteNews>();

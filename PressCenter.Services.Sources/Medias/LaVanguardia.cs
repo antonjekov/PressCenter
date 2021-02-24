@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using System.Xml.Linq;
 
 namespace PressCenter.Services.Sources.Medias
@@ -36,10 +37,10 @@ namespace PressCenter.Services.Sources.Medias
                     {
                         continue;
                     }
-                    var title = (string)newsItem.Element("NewsLines").Element("HeadLine");
-                    var originalUrl = (string)newsItem.Element("NewsLines").Element("DeriveredFrom");
-                    var remoteID = (string)newsItem.Element("NewsComponent").Attribute("Duid").Value;
-                    var imageUrl = (string)newsItem.Element("NewsComponent")
+                    var title = HttpUtility.HtmlDecode(newsItem.Element("NewsLines").Element("HeadLine").Value); 
+                    var originalUrl = newsItem.Element("NewsLines").Element("DeriveredFrom").Value;
+                    var remoteID = newsItem.Element("NewsComponent").Attribute("Duid").Value;
+                    var imageUrl = newsItem.Element("NewsComponent")
                         .Element("NewsComponent")
                         .Element("NewsComponent")
                         .Element("ContentItem")

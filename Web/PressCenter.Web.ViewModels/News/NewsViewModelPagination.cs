@@ -3,6 +3,7 @@
     using System.Collections.Generic;
 
     using PressCenter.Web.ViewModels.Shared;
+    using PressCenter.Web.ViewModels.Sources;
     using PressCenter.Web.ViewModels.TopNews;
 
     public class NewsViewModelPagination : PaginationViewModel

@@ -13,23 +13,18 @@ namespace PressCenter.Services.Sources.Catalunya
     public class GeneralitatDeCatalunya : BaseSource<IElement>
     {
         private readonly IBrowsingContext context;
+        private readonly IRssAtomService rssAtomService;
 
-        public GeneralitatDeCatalunya(Source source /*, IRssAtomService rssAtomService*/) : base(source)
+        public GeneralitatDeCatalunya(Source source, IRssAtomService rssAtomService) : base(source, rssAtomService)
         {
             this.context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
-            //this.rssAtomService = rssAtomService;
-        }
-
-        public override Task<IEnumerable<RemoteNews>> GetAllPublicationsAsync()
-        {
-            throw new NotImplementedException();
+            this.rssAtomService = rssAtomService;
         }
 
         public override async Task<IEnumerable<RemoteNews>> GetNewPublicationsAsync(List<string> existingNewsRemoteIds)
         {
-            var rssAtomService = new RssAtomService();
             var result = new List<RemoteNews>();
-            var items = await rssAtomService.Read1Async(this.EntryPointUrl);
+            var items = await this.rssAtomService.ReadAsync(this.EntryPointUrl);
             foreach (var news in items)
             {
                 string remoteId = (string)news.SpecificItem.Element.Descendants().First(x => x.Name.LocalName == "guid");
@@ -72,10 +67,23 @@ namespace PressCenter.Services.Sources.Catalunya
         protected override async Task<string> GetNewsContentAsync(IElement textHTML)
         {
             var sb = new StringBuilder();
-            var allElementsText = textHTML.QuerySelector("div.basic_text_peq").QuerySelectorAll("div");
-            foreach (var item in allElementsText)
+            var newsDescription = textHTML.QuerySelector("p.noticia_descp").TextContent;
+            sb.AppendLine(newsDescription);
+            sb.AppendLine();
+
+            var allElementsDiv = textHTML.QuerySelector("div.basic_text_peq").QuerySelectorAll("div");
+            if (allElementsDiv.Count() > 0)
             {
-                sb.AppendLine(item.TextContent);
+                foreach (var item in allElementsDiv)
+                {
+                    sb.AppendLine(item.TextContent);
+                }
+
+            }
+            else
+            {
+                var allElementsText = textHTML.QuerySelector("div.basic_text_peq").TextContent;
+                sb.AppendLine(allElementsText);
             }
             var allText = sb.ToString();
             return allText;

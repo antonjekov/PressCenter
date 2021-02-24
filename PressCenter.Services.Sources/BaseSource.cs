@@ -9,15 +9,17 @@
 
     public abstract class BaseSource<T>
     {
-        protected BaseSource(Source source)
+        protected BaseSource(Source source, IRssAtomService rssAtomService)
         {
             this.BaseUrl = source.Url;
             this.EntryPointUrl = source.EntryPointUrl;
             this.DefaultImageUrl = source.DefaultImageUrl;
+            this.RssAtomService = rssAtomService;
         }
 
         protected string EntryPointUrl { get; }
         protected string DefaultImageUrl { get; }
+        public IRssAtomService RssAtomService { get; }
         protected string BaseUrl { get; }
         
         protected virtual async Task<RemoteNews> GetInfoAsync(T textHTML)
@@ -39,6 +41,5 @@
         protected abstract Task<string> GetOriginalUrlAsync(T textHTML);
         protected abstract Task<string> GetRemoteIdAsync(T textHTML);
         public abstract Task<IEnumerable<RemoteNews>> GetNewPublicationsAsync(List<string> existingNewsRemoteIds);
-        public abstract Task<IEnumerable<RemoteNews>> GetAllPublicationsAsync();
     }
 }
