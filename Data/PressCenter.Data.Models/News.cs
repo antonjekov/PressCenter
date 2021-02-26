@@ -16,12 +16,10 @@
 
         public string OriginalUrl { get; set; }
 
-        public int? SourceId { get; set; }
+        public int SourceId { get; set; }
 
         public virtual Source Source { get; set; }
 
         public string RemoteId { get; set; }
-
-        public string SearchText { get; set; }
     }
 }

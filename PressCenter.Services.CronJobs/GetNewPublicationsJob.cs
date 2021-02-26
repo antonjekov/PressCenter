@@ -8,6 +8,7 @@ using PressCenter.Services.Sources;
 using PuppeteerSharp;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -39,7 +40,7 @@ namespace PressCenter.Services.CronJobs
                 throw new Exception($"Type \"{source.TypeName}\" not found!");
             }
 
-            
+
             if (source.PageIsDynamic)
             {
                 var instance = (BaseSource<ElementHandle>)Activator.CreateInstance(type, source, rssAtomService);

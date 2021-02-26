@@ -2,12 +2,12 @@
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
-
+    using PressCenter.Data.Models;
     using PressCenter.Services.Sources;
 
     public interface ITopNewsService
     {
-        Task AddAsync(TopNews topNews, int sourceId);
+        Task AddAsync(ITopNews topNews, int sourceId);
 
         T GetById<T>(int id);
 

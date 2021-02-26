@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -66,6 +67,11 @@ namespace AzurCronFunctions
                     await newPublicationsJob.StartAsync(item);
                     log.LogInformation($"{item.Name} seed processed.");
                 }
+                catch (ValidationException exp)
+                {
+                    log.LogInformation(exp.Message);
+                    continue;
+                }
                 catch (Exception)
                 {
                     log.LogInformation($"{item.Name} seed failed.");
@@ -85,6 +91,11 @@ namespace AzurCronFunctions
                     await getNewTopNewsJob.StartAsync(item);
                     log.LogInformation($"{item.Name} seed processed.");
                 }
+                catch (ValidationException exp)
+                {
+                    log.LogInformation(exp.Message);
+                    continue;
+                }
                 catch (Exception)
                 {
                     log.LogInformation($"{item.Name} seed failed.");
@@ -101,22 +112,26 @@ namespace AzurCronFunctions
             var sources = this.sourceService.GetAll();
             foreach (var item in sources)
             {
-                if (item.ShortName == "Policia Nacional")
+                
+                try
                 {
+                    if (item.ShortName == "Policia Nacional")
+                    {
+                        continue;
+                    }
+                    await newPublicationsJob.StartAsync(item);
+                    log.LogInformation($"{item.Name} seed processed.");
+                }
+                catch (ValidationException exp)
+                {
+                    log.LogInformation(exp.Message);
                     continue;
                 }
-                await newPublicationsJob.StartAsync(item);
-                log.LogInformation($"{item.Name} seed processed.");
-                //try
-                //{
-                //await newPublicationsJob.StartAsync(item);
-                //log.LogInformation($"{item.Name} seed processed.");
-                //}
-                //catch (Exception)
-                //{
-                //    log.LogInformation($"{item.Name} seed failed.");
-                //    continue;
-                //}
+                catch (Exception)
+                {
+                    log.LogInformation($"{item.Name} seed failed.");
+                    continue;
+                }
             }
             var news = newsService.GetAll<NewsViewModel>();
             return new OkObjectResult(news.First());
@@ -134,6 +149,11 @@ namespace AzurCronFunctions
                 {
                     await getNewTopNewsJob.StartAsync(item);
                     log.LogInformation($"{item.Name} seed processed.");
+                }
+                catch (ValidationException exp)
+                {
+                    log.LogInformation(exp.Message);
+                    continue;
                 }
                 catch (Exception)
                 {
