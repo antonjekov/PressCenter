@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace PressCenter.Services.Sources.Catalunya
 {
-    public class MossosEsquadra: BaseSource<IElement>
+    public class MossosEsquadra : BaseSource<IElement>
     {
         private readonly IBrowsingContext context;
         private readonly IRssAtomService rssAtomService;
@@ -54,7 +54,7 @@ namespace PressCenter.Services.Sources.Catalunya
             string imageUrl;
             var imageElement = textHTML.QuerySelector("div.notc_img")?.QuerySelector("img");
 
-            if (imageElement!=null)
+            if (imageElement != null)
             {
                 imageUrl = imageElement.GetAttribute("src");
             }
@@ -63,21 +63,22 @@ namespace PressCenter.Services.Sources.Catalunya
                 imageUrl = this.DefaultImageUrl;
             }
             return imageUrl;
-        }         
-            
+        }
+
 
         protected override async Task<string> GetNewsContentAsync(IElement textHTML)
         {
             var url = await this.GetOriginalUrlAsync(textHTML);
+            var document =await this.context.OpenAsync(url);
             var sb = new StringBuilder();
-            var firstLines = textHTML.QuerySelector("div.entradeta");
+            var firstLines = document.QuerySelector("div.entradeta");
             if (firstLines != null)
             {
                 sb.AppendLine(firstLines.TextContent.Trim());
                 sb.AppendLine();
             }
-            var paragraphs = textHTML.QuerySelector("div.basic_text_peq").QuerySelectorAll("p");
-            if (paragraphs.Count() > 0)
+            var paragraphs = document.QuerySelector("div.basic_text_peq")?.QuerySelectorAll("p");
+            if (paragraphs != null && paragraphs.Count() > 0)
             {
                 foreach (var item in paragraphs)
                 {
@@ -87,8 +88,11 @@ namespace PressCenter.Services.Sources.Catalunya
             }
             else
             {
-                var content = textHTML.QuerySelector("div.basic_text_peq").TextContent;
-                sb.AppendLine(content);
+                var content = document.QuerySelector("div.basic_text_peq");
+                if (content != null)
+                {
+                    sb.AppendLine(content.TextContent);
+                }
             }
             return sb.ToString();
         }
@@ -105,14 +109,14 @@ namespace PressCenter.Services.Sources.Catalunya
             var url = await this.GetOriginalUrlAsync(textHTML);
             var remoteId = url.Split("?id=")?
                 .LastOrDefault();
-                
+
             return remoteId;
         }
 
         protected override async Task<string> GetTitleAsync(IElement textHTML)
         {
             var title = textHTML.QuerySelector("h3").TextContent;
-            return title; 
+            return title;
         }
     }
 }

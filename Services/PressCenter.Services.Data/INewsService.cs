@@ -8,7 +8,7 @@
 
     public interface INewsService
     {
-        Task AddAsync(RemoteNews remoteNews, int sourceId);
+        Task AddAsync(INews remoteNews, int sourceId);
 
         T GetById<T>(int id);
 

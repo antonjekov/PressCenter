@@ -73,6 +73,7 @@
             services.AddTransient<ITopNewsService, TopNewsService>();
             services.AddTransient<ISourceService, SourceService>();
             services.AddTransient<IRssAtomService, RssAtomService>();
+            services.AddTransient<IDataValidationService, DataValidationService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

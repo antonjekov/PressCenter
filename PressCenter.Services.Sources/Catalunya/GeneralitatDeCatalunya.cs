@@ -33,7 +33,7 @@ namespace PressCenter.Services.Sources.Catalunya
                     continue;
                 }
                 var document = await this.context.OpenAsync(news.Link);
-                var element = document.QuerySelector("#detall");                
+                var element = document.QuerySelector("#detall");
                 RemoteNews input = await GetInfoAsync(element);
                 input.Title = news.Title;
                 input.OriginalUrl = news.Link;
@@ -55,7 +55,7 @@ namespace PressCenter.Services.Sources.Catalunya
             string imageUrl;
             if (imageUrlInfo != null)
             {
-                imageUrl =this.BaseUrl+ imageUrlInfo.GetAttribute("src");
+                imageUrl = this.BaseUrl + imageUrlInfo.GetAttribute("src");
             }
             else
             {
@@ -67,9 +67,12 @@ namespace PressCenter.Services.Sources.Catalunya
         protected override async Task<string> GetNewsContentAsync(IElement textHTML)
         {
             var sb = new StringBuilder();
-            var newsDescription = textHTML.QuerySelector("p.noticia_descp").TextContent;
-            sb.AppendLine(newsDescription);
-            sb.AppendLine();
+            var newsDescription = textHTML.QuerySelector("p.noticia_descp");
+            if (newsDescription != null)
+            {
+                sb.AppendLine(newsDescription.TextContent);
+                sb.AppendLine();
+            }
 
             var allElementsDiv = textHTML.QuerySelector("div.basic_text_peq").QuerySelectorAll("div");
             if (allElementsDiv.Count() > 0)

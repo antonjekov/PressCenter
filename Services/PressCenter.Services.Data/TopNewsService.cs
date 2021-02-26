@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -12,14 +13,21 @@
     public class TopNewsService : ITopNewsService
     {
         private readonly IDeletableEntityRepository<TopNews> newsRepository;
+        private readonly IDataValidationService dataValidationService;
 
-        public TopNewsService(IDeletableEntityRepository<TopNews> newsRepository)
+        public TopNewsService(IDeletableEntityRepository<TopNews> newsRepository, IDataValidationService dataValidationService)
         {
             this.newsRepository = newsRepository;
+            this.dataValidationService = dataValidationService;
         }
 
-        public async Task AddAsync(Sources.TopNews topNews, int sourceId)
+        public async Task AddAsync(ITopNews topNews, int sourceId)
         {
+            if (!this.dataValidationService.ValidateTopNews(topNews))
+            {
+                throw new ValidationException($"TopNews from TopNewsSourceId: {sourceId}, with OriginalUrl: {topNews.OriginalUrl} don't pass validation!");
+            }
+
             var news = new TopNews()
             {
                 SourceId = sourceId,
