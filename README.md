@@ -4,8 +4,8 @@ News aggregator for the press releases of the Spanish government sites written i
 
 ## Project Structure 
 The project contains two applications that work independently and use the same database.
-### First application only collects, normalize, and save data to database. 
-### Second application is .NET Core WEB that only represent information. https://noticiasenoriginal.azurewebsites.net/
+- First application only collects, normalize, and save data to database. 
+- Second application is .NET Core WEB that only represent information. https://noticiasenoriginal.azurewebsites.net/
 
 ## Used technologies and libraries:
 -	.NET
